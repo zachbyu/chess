@@ -1,5 +1,5 @@
 package chess;
-
+// use 2 dimensional array
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
