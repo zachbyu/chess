@@ -7,6 +7,16 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
         

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import chess.movement.*;
 
 /**
  * Represents a single chess piece
@@ -25,19 +26,20 @@ public class ChessPiece {
         ROOK,
         PAWN
     }
-
+    private ChessGame.TeamColor color;
+    private PieceType type;
     /**
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return color;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
