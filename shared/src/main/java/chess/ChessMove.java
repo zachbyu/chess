@@ -12,10 +12,13 @@ public class ChessMove {
 
     private ChessPosition start;
     private ChessPosition end;
-    private ChessPosition promotion;
+    private ChessPiece.PieceType promotion;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        this.start = startPosition;
+        this.end = endPosition;
+        this.promotion = promotionPiece;
     }
 
     /**
@@ -38,7 +41,7 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return promotion;
     }
 
     @Override

@@ -4,21 +4,33 @@ import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPosition;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 
-public class BishopMoves {
-    /**
-     * Calculates all the positions a chess piece can move to
-     * Does not take into account moves that are illegal due to leaving the king in
-     * danger
-     *
-     * @return Collection of valid moves
-     */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+public class BishopMoves implements MoveCalculator{
+    public static HashSet<ChessMove> getBishopMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moves = new HashSet<>();
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
+        int[][] changes = new int[][] {{1,-1}, {1,1}, {-1, 1}, {-1, -1}};
+        for (int[] item : changes){
+            int newRow = currentRow;
+            int newCol = currentCol;
+            while(true) {
+                newRow = newRow + item[0];
+                newCol = newCol + item[1];
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                if (MoveCalculator.validMove(newPosition)) {
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                }else{
+                    break;
+                }
+            }
+        }
+
+
+
+        return moves;
+            //make new rows and columns
     }
-
-
 
 }

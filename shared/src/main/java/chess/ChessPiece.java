@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 import chess.movement.*;
@@ -15,6 +16,8 @@ import chess.movement.*;
 public class ChessPiece {
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.type = type;
+        this.color = pieceColor;
     }
 
     /**
@@ -52,7 +55,12 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        HashSet<ChessMove> moves = new HashSet<ChessMove>();
+        switch(type){
+            case BISHOP: moves = BishopMoves.getBishopMoves(board, myPosition);
+//            case KING:
+        }
+    return moves;
     }
 
     @Override
