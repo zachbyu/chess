@@ -76,12 +76,49 @@ public class PawnMoves implements MoveCalculator {
         //Capture Logic
         //White
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
-            //left capture
-            int newRow = currentRow + 1;
-            int newColumn = currentCol - 1;
-
+            int [][] changes = {{1, 1}, {1, -1}};
+            for (int[] item : changes) {
+                int newRow = currentRow + item[0];
+                int newCol = currentCol + item[1];
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                if (MoveCalculator.inBounds(newPosition)) {
+                    //check if piece there
+                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
+                        if (newRow == 8){
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.KNIGHT));
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.BISHOP));
+                        }else{
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
         }
 
+        //Black Capture
+        if (currentPiece.getTeamColor() == ChessGame.TeamColor.BLACK){
+            int [][] changes = {{-1, 1}, {-1, -1}};
+            for (int[] item : changes) {
+                int newRow = currentRow + item[0];
+                int newCol = currentCol + item[1];
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                if (MoveCalculator.inBounds(newPosition)) {
+                    //check if piece there
+                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
+                        if (newRow == 1){
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.KNIGHT));
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.BISHOP));
+                        }else{
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
+        }
 
 
         return moves;
