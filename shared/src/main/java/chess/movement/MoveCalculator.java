@@ -16,8 +16,6 @@ interface MoveCalculator {
         int row = position.getRow();
         int col = position.getColumn();
 
-
-
         return (row <= 8 && row > 0 && col > 0 && col <= 8);
 
     }

@@ -16,9 +16,6 @@ public class BishopMoves implements MoveCalculator{
 //        boolean infinteMoves = true;
         int[][] changes = new int[][] {{1,-1}, {1,1}, {-1, 1}, {-1, -1}};
         MoveCalculator.extracted(board, myPosition, changes, currentRow, currentCol, currentPiece, moves, true);
-        
-
-
 
         return moves;
     }

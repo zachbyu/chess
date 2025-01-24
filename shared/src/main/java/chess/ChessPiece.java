@@ -57,11 +57,34 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<ChessMove>();
         switch(type){
-            case BISHOP: moves = BishopMoves.getMoves(board, myPosition);
-            case KING: moves = KingMoves.getMoves(board, myPosition);
+            case BISHOP: moves = BishopMoves.getMoves(board, myPosition);break;
+            case KING: moves = KingMoves.getMoves(board, myPosition);break;
+            case ROOK: moves = RookMoves.getMoves(board, myPosition);break;
+            case QUEEN: moves = QueenMoves.getMoves(board, myPosition);break;
+            case KNIGHT: moves = KnightMoves.getMoves(board, myPosition);break;
         }
     return moves;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return color == that.color && type == that.type;
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, type);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "color=" + color +
+                ", type=" + type +
+                '}';
+    }
 }
