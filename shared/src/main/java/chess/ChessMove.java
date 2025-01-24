@@ -31,7 +31,8 @@ public class ChessMove {
     /**
      * @return ChessPosition of ending location
      */
-    public ChessPosition getEndPosition() { return end;
+    public ChessPosition getEndPosition() {
+        return end;
     }
 
     /**
@@ -50,13 +51,24 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && Objects.equals(promotion, chessMove.promotion);
+        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promotion == chessMove.promotion;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(start, end, promotion);
     }
+
+    @Override
+    public String toString() {
+        return "ChessMove{" +
+                start +
+                ", " + end +
+                ", " + promotion +
+                '}';
+    }
 }
+
+
 
 

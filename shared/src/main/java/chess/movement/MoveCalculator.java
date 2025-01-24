@@ -12,12 +12,38 @@ interface MoveCalculator {
     static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
         return null;
     }
-    static boolean validMove(ChessPosition position){
+    static boolean inBounds(ChessPosition position){
         int row = position.getRow();
         int col = position.getColumn();
-        //implement collision logic
 
-        return (row < 8 && row >= 0 && col >=0 && col < 8);
 
+
+        return (row <= 8 && row > 0 && col > 0 && col <= 8);
+
+    }
+    static void extracted(ChessBoard board, ChessPosition myPosition, int[][] changes, int currentRow, int currentCol, ChessPiece currentPiece, HashSet<ChessMove> moves, boolean infiniteMovement) {
+        for (int[] item : changes){
+            int newRow = currentRow;
+            int newCol = currentCol;
+            do {
+                newRow = newRow + item[0];
+                newCol = newCol + item[1];
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                if (MoveCalculator.inBounds(newPosition)) {
+                    //implement collision logic
+                    if(board.getPiece(newPosition) != null){
+                        if(board.getPiece(newPosition).getTeamColor() == currentPiece.getTeamColor()){
+                            break;
+                        }else{
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                            break;
+                        }
+                    }
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                }else{
+                    break;
+                }
+            }while(infiniteMovement);
+        }
     }
 }
