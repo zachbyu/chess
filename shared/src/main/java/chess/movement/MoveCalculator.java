@@ -9,9 +9,9 @@ import java.util.HashSet;
 
 interface MoveCalculator {
 
-    static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
-        return null;
-    }
+//    static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
+//        return null;
+//    }
     static boolean inBounds(ChessPosition position){
         int row = position.getRow();
         int col = position.getColumn();
