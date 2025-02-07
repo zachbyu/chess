@@ -96,6 +96,7 @@ public class ChessGame {
         }
         //default to cannot make a move
         boolean valid = false;
+        ChessPiece.PieceType promo = move.getPromotionPiece();
         Collection<ChessMove> allPossibleMoves = validMoves(start);
         for (ChessMove possibleMove : allPossibleMoves){
             if (possibleMove.equals(move)) {
@@ -110,7 +111,11 @@ public class ChessGame {
         }
         else{
             //move piece
-            board.addPiece(end, piece);
+            if (promo != null){
+                board.addPiece(end, new ChessPiece(currentTurnColor, promo));
+            }else {
+                board.addPiece(end, piece);
+            }
             board.addPiece(start, null);
             //change team turn
             if (getTeamTurn() == TeamColor.WHITE){
