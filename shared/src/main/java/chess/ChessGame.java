@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -50,8 +51,28 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+//        ChessBoard testboard = board.clone();
+        // could not figure out how to call isincheck with a cloned board
         ChessPiece piece = board.getPiece(startPosition);
-        return null;
+        if (piece == null){
+            return null;
+        }
+        Collection<ChessMove> allmoves = piece.pieceMoves(board, startPosition);
+        HashSet<ChessMove> actualMoves = new HashSet<>();
+        for (ChessMove move : allmoves){
+            //test move
+            ChessPosition end = move.getEndPosition();
+            ChessPiece capturedPiece = board.getPiece(end);
+            board.addPiece(end, piece);
+            board.addPiece(startPosition, null);
+            if (!isInCheck(piece.getTeamColor())){
+                actualMoves.add(move);
+            }
+            //reset board
+            board.addPiece(end, capturedPiece);
+            board.addPiece(startPosition, piece);
+        }
+        return actualMoves;
     }
 
     /**
