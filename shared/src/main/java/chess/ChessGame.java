@@ -86,24 +86,38 @@ public class ChessGame {
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
         TeamColor currentTurnColor = getTeamTurn();
+        //no piece
         if (piece == null){
             throw new InvalidMoveException("no piece at start position");
         }
+        //wrong turn
+        if (piece.getTeamColor() != currentTurnColor){
+            throw new InvalidMoveException("it is not this piece team turn");
+        }
+        //default to cannot make a move
         boolean valid = false;
         Collection<ChessMove> allPossibleMoves = validMoves(start);
         for (ChessMove possibleMove : allPossibleMoves){
             if (possibleMove.equals(move)) {
+                //this move is possible
                 valid = true;
                 break;
             }
         }
+        //move not in validMoves
         if (!valid){
             throw new InvalidMoveException("not a valid move");
         }
         else{
+            //move piece
             board.addPiece(end, piece);
             board.addPiece(start, null);
-            setTeamTurn();
+            //change team turn
+            if (getTeamTurn() == TeamColor.WHITE){
+                setTeamTurn(TeamColor.BLACK);
+            }else{
+                setTeamTurn(TeamColor.WHITE);
+            }
         }
     }
 
