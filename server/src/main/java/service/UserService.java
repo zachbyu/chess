@@ -8,6 +8,8 @@ import model.UserData;
 import server.handlers.RegisterRequest;
 import server.handlers.*;
 
+import java.util.Objects;
+
 public class UserService {
 
     private final UserDAO userDataAccess;
@@ -42,5 +44,38 @@ public class UserService {
 
     public void clear() throws DataAccessException{
         userDataAccess.clearUsers();
+    }
+
+    public LoginResult login(LoginRequest loginRequest)throws DataAccessException{
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+        UserData currentUser = userDataAccess.getUser(username);
+        if (currentUser == null){
+            throw new DataAccessException(401, "Error: unauthorized");
+        }else{
+            String expected_pass = currentUser.password();
+            if (!Objects.equals(password, expected_pass)){
+                throw new DataAccessException(401, "Error: unauthorized");
+            }else{
+                String token = AuthService.generateToken();
+                AuthData auth = new AuthData(token, username);
+                authDataAccess.createAuth(auth);
+                return new LoginResult(username, token);
+            }
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserService that = (UserService) o;
+        return Objects.equals(userDataAccess, that.userDataAccess) && Objects.equals(authDataAccess, that.authDataAccess);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userDataAccess, authDataAccess);
     }
 }

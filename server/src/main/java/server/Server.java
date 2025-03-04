@@ -1,13 +1,8 @@
 package server;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.ExceptionMessageResult;
 import dataaccess.*;
-import server.handlers.RegisterRequest;
-import server.handlers.RegisterResult;
-import service.AuthService;
-import service.GameService;
-import service.UserService;
+import server.handlers.*;
+import service.*;
 import spark.*;
 
 public class Server {
@@ -35,6 +30,7 @@ public class Server {
 //        Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
         Spark.delete("/db", this::clear);
+        Spark.post("/session", this::login);
 
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
@@ -53,8 +49,8 @@ public class Server {
 
     private void exceptionHandler(DataAccessException exception, Request request, Response response){
         response.status(exception.getErrorType());
-        ExceptionMessageResult message = new ExceptionMessageResult(exception.getMessage());
-        response.body(new Gson().toJson(message));
+        ExceptionMessageResult errorMessage = new ExceptionMessageResult(exception.getMessage());
+        response.body(new Gson().toJson(errorMessage));
     }
 
 
@@ -68,5 +64,11 @@ public class Server {
         userService.clear();
         authService.clear();
         return "";
+    }
+
+    private Object login(Request request, Response response) throws DataAccessException {
+        LoginRequest loginRequest = new Gson().fromJson(request.body(), LoginRequest.class);
+        LoginResult loginResult = userService.login(loginRequest);
+        return new Gson().toJson(loginResult);
     }
 }
