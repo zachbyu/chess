@@ -40,6 +40,7 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::createGame);
+        Spark.get("/game", this::listGames);
 
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
@@ -74,6 +75,7 @@ public class Server {
     private Object clear(Request request, Response response) throws DataAccessException{
         userService.clear();
         authService.clear();
+        gameService.clearGames();
         return "";
     }
 
@@ -100,6 +102,14 @@ public class Server {
         }else{
             throw new DataAccessException(401, "Error: unauthorized");
         }
+    }
+
+    private Object listGames(Request request, Response response)throws DataAccessException{
+        String authToken = request.headers("authorization");
+        validateToken(authToken);
+        ListGamesResult listGamesResult = gameService.listGames();
+        return new Gson().toJson(listGamesResult);
+
     }
 
     private boolean validateToken(String authToken)throws DataAccessException{

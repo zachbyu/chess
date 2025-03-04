@@ -8,6 +8,8 @@ import dataaccess.UserDAO;
 import model.GameData;
 import server.handlers.*;
 
+import java.util.ArrayList;
+
 public class GameService {
     private final UserDAO userDataAccess;
     private final AuthDAO authDataAccess;
@@ -22,6 +24,15 @@ public class GameService {
         GameData game = gameDataAccess.createGame(createGameRequest.gameName());
         CreateGameResult result = new CreateGameResult(game.gameID());
         return result;
+    }
+
+    public ListGamesResult listGames()throws DataAccessException{
+        ListGamesResult games = new ListGamesResult(gameDataAccess.listGames());
+        return games;
+    }
+
+    public void clearGames()throws DataAccessException{
+        gameDataAccess.clearGames();
     }
 
 
