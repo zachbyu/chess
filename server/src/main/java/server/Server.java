@@ -6,20 +6,26 @@ import server.handlers.*;
 import service.*;
 import spark.*;
 
+import javax.xml.crypto.Data;
+
 public class Server {
 
     private final UserService userService;
     private final AuthService authService;
+    private final GameService gameService;
 
     private final UserDAO userDataAccess;
     private final AuthDAO authDataAccess;
+    private final GameDAO gameDataAccess;
 
 
     public Server(){
+        this.gameDataAccess = new MemoryGameDAO();
         this.userDataAccess = new MemoryUserDAO();
         this.authDataAccess = new MemoryAuthDAO();
         this.userService = new UserService(userDataAccess,authDataAccess);
         this.authService = new AuthService(userDataAccess,authDataAccess);
+        this.gameService = new GameService(userDataAccess, authDataAccess, gameDataAccess);
     }
 
     public int run(int desiredPort) {
@@ -33,6 +39,7 @@ public class Server {
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.post("/game", this::createGame);
 
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
@@ -82,6 +89,17 @@ public class Server {
             authDataAccess.deleteAuth(authToken);
         }
         return "";
+    }
+
+    private Object createGame(Request request, Response response)throws DataAccessException{
+        String authToken = request.headers("authorization");
+        if (validateToken(authToken)){
+            CreateGameRequest createGameRequest = new Gson().fromJson(request.body(), CreateGameRequest.class);
+            CreateGameResult createGameResult = gameService.createGame(createGameRequest);
+            return new Gson().toJson(createGameResult);
+        }else{
+            throw new DataAccessException(401, "Error: unauthorized");
+        }
     }
 
     private boolean validateToken(String authToken)throws DataAccessException{

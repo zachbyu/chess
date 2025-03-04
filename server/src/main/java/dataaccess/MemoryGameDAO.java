@@ -1,4 +1,42 @@
 package dataaccess;
 
-public class MemoryGameDAO {
+import chess.ChessGame;
+import model.GameData;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class MemoryGameDAO implements GameDAO{
+    private HashMap<Integer, GameData> games = new HashMap<>();
+    private int id = 1;
+
+
+    public GameData getGame(int gameID){
+        return games.get(gameID);
+    }
+
+    @Override
+    public GameData createGame(String gameName) throws DataAccessException {
+        GameData newGame = new GameData(id, null, null, gameName, new ChessGame());
+        id += 1;
+        games.put(newGame.gameID(), newGame);
+        return newGame;
+    }
+
+    @Override
+    public GameData updateGame(GameData game) throws DataAccessException {
+        games.put(game.gameID(), game);
+        return game;
+    }
+
+    @Override
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        return new ArrayList<>(games.values());
+    }
+
+    @Override
+    public void clearGames() throws DataAccessException {
+        games.clear();
+    }
 }

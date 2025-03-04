@@ -1,8 +1,12 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import model.GameData;
+import server.handlers.*;
 
 public class GameService {
     private final UserDAO userDataAccess;
@@ -14,4 +18,12 @@ public class GameService {
         this.authDataAccess = authDataAccess;
         this.gameDataAccess = gameDataAccess;
     }
+    public CreateGameResult createGame(CreateGameRequest createGameRequest)throws DataAccessException {
+        GameData game = gameDataAccess.createGame(createGameRequest.gameName());
+        CreateGameResult result = new CreateGameResult(game.gameID());
+        return result;
+    }
+
+
 }
+
