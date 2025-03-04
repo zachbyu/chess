@@ -1,6 +1,7 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.*;
+import model.AuthData;
 import server.handlers.*;
 import service.*;
 import spark.*;
@@ -31,6 +32,7 @@ public class Server {
         Spark.post("/user", this::register);
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
 
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
@@ -47,11 +49,13 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private void exceptionHandler(DataAccessException exception, Request request, Response response){
-        response.status(exception.getErrorType());
-        ExceptionMessageResult errorMessage = new ExceptionMessageResult(exception.getMessage());
-        response.body(new Gson().toJson(errorMessage));
+    private void exceptionHandler(DataAccessException ex, Request req, Response res) {
+        res.status(ex.getErrorType());
+        ExceptionMessageResult message = new ExceptionMessageResult(ex.getMessage());
+        String jsonResponse = new Gson().toJson(message);
+        res.body(jsonResponse);
     }
+
 
 
     private Object register(Request request, Response response) throws DataAccessException {
@@ -70,5 +74,26 @@ public class Server {
         LoginRequest loginRequest = new Gson().fromJson(request.body(), LoginRequest.class);
         LoginResult loginResult = userService.login(loginRequest);
         return new Gson().toJson(loginResult);
+    }
+
+    private Object logout(Request request, Response response)throws DataAccessException{
+        String authToken = request.headers("authorization");
+        if(validateToken(authToken)) {
+            authDataAccess.deleteAuth(authToken);
+        }
+        return "";
+    }
+
+    private boolean validateToken(String authToken)throws DataAccessException{
+        try{
+            AuthData data = authDataAccess.getAuth(authToken);
+            if (data.authToken() == null || authToken.isEmpty()){
+                throw new DataAccessException(401, "Error: unauthorized");
+            }else{
+                return true;
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(401, "Error: unauthorized");
+        }
     }
 }

@@ -1,4 +1,8 @@
 package dataaccess;
 
-public record ExceptionMessageResult(String errorMessage) {
+public class ExceptionMessageResult{
+    private final String message;
+    public ExceptionMessageResult(String message){
+        this.message = message;
+    }
 }
