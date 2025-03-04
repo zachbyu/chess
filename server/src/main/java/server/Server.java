@@ -41,6 +41,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::createGame);
         Spark.get("/game", this::listGames);
+        Spark.put("/game", this::joinGame);
 
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
@@ -112,6 +113,15 @@ public class Server {
 
     }
 
+    private Object joinGame(Request request, Response response)throws DataAccessException{
+        String authToken = request.headers("authorization");
+        validateToken(authToken);
+        String username = getUsername(authToken);
+        JoinGameRequest joinGameRequest = new Gson().fromJson(request.body(), JoinGameRequest.class);
+        gameService.joinGame(joinGameRequest, username);
+        return "";
+    }
+
     private boolean validateToken(String authToken)throws DataAccessException{
         try{
             AuthData data = authDataAccess.getAuth(authToken);
@@ -123,5 +133,10 @@ public class Server {
         } catch (Exception e) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
+    }
+
+    private String getUsername(String authToken)throws DataAccessException{
+        AuthData auth = authDataAccess.getAuth(authToken);
+        return auth.username();
     }
 }
