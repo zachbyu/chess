@@ -4,10 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import server.*;
-import server.handlers.LoginRequest;
-import server.handlers.LoginResult;
-import server.handlers.RegisterRequest;
-import server.handlers.RegisterResult;
+import server.handlers.*;
 import service.*;
 import org.junit.jupiter.api.Test;
 
@@ -77,4 +74,21 @@ public class ServiceUnitTests {
 
         Assertions.assertEquals("Error: unauthorized", ex.getMessage());
     }
+
+    @Test
+    void CreateGameTestSuccess() throws DataAccessException{
+        CreateGameRequest request = new CreateGameRequest("game");
+        CreateGameResult result = gameService.createGame(request);
+
+        Assertions.assertEquals(1, result.gameID());
+    }
+
+    @Test
+    void CreateGameTestFail() throws DataAccessException{
+        CreateGameRequest request = new CreateGameRequest("game");
+        CreateGameResult result = gameService.createGame(request);
+
+        Assertions.assertNotEquals(5, result.gameID());
+    }
+
 }
