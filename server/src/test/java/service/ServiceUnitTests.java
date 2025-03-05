@@ -2,6 +2,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,5 +116,36 @@ public class ServiceUnitTests {
         DataAccessException ex = Assertions.assertThrows(DataAccessException.class, ()-> gameService.joinGame(joinGameRequest, "username"));
 
         Assertions.assertEquals("Error: already taken", ex.getMessage());
+    }
+
+    @Test
+    void ListGamesTestSuccess() throws DataAccessException{
+        userService.register(new RegisterRequest("username", "password", "email@domain"));
+        CreateGameResult game1 = gameService.createGame(new CreateGameRequest("game1"));
+        CreateGameResult game2 = gameService.createGame(new CreateGameRequest("game2"));
+        ListGamesResult result = gameService.listGames();
+
+        Assertions.assertEquals(1, result.games().getFirst().gameID());
+        Assertions.assertEquals(2, result.games().get(1).gameID());
+    }
+
+    @Test
+    void ListGamesTestFail() throws DataAccessException{
+        userService.register(new RegisterRequest("username", "password", "email@domain"));
+        CreateGameResult game1 = gameService.createGame(new CreateGameRequest("game1"));
+        CreateGameResult game2 = gameService.createGame(new CreateGameRequest("game2"));
+        ListGamesResult result = gameService.listGames();
+
+        Assertions.assertNotEquals(2, result.games().getFirst().gameID());
+        Assertions.assertNotEquals(1, result.games().get(1).gameID());
+    }
+
+    @Test
+    void ClearSuccess() throws DataAccessException{
+        userService.register(new RegisterRequest("username", "password", "email@domain"));
+        gameService.createGame(new CreateGameRequest("game1"));
+        userService.clear();
+        gameService.clearGames();
+        authService.clear();
     }
 }
