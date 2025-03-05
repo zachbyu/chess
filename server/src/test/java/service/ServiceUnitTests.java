@@ -63,8 +63,18 @@ public class ServiceUnitTests {
 
     @Test
     void LogoutTestSuccess() throws DataAccessException{
-        userService.register(new RegisterRequest("username", "password", "email@domain"));
-        userService.login(new LoginRequest("username", "password"));
+        RegisterResult result = userService.register(new RegisterRequest("username", "password", "email@domain"));
+        String authToken = result.authToken();
+        userService.logout(authToken);
 
+        Assertions.assertNotNull(authToken);
+        Assertions.assertNull(authDataAccess.getAuth(authToken));
+    }
+
+    @Test
+    void LogoutTestFail() throws DataAccessException{
+        DataAccessException ex = Assertions.assertThrows(DataAccessException.class, ()-> userService.logout(null));
+
+        Assertions.assertEquals("Error: unauthorized", ex.getMessage());
     }
 }

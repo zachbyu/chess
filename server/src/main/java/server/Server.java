@@ -89,7 +89,7 @@ public class Server {
     private Object logout(Request request, Response response)throws DataAccessException{
         String authToken = request.headers("authorization");
         if(validateToken(authToken)) {
-            authDataAccess.deleteAuth(authToken);
+            userService.logout(authToken);
         }
         return "";
     }
