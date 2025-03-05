@@ -1,14 +1,9 @@
 package service;
-import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import server.*;
 import server.handlers.*;
-import service.*;
 import org.junit.jupiter.api.Test;
 
 public class ServiceUnitTests {
@@ -121,8 +116,8 @@ public class ServiceUnitTests {
     @Test
     void ListGamesTestSuccess() throws DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
-        CreateGameResult game1 = gameService.createGame(new CreateGameRequest("game1"));
-        CreateGameResult game2 = gameService.createGame(new CreateGameRequest("game2"));
+        gameService.createGame(new CreateGameRequest("game1"));
+        gameService.createGame(new CreateGameRequest("game2"));
         ListGamesResult result = gameService.listGames();
 
         Assertions.assertEquals(1, result.games().getFirst().gameID());
@@ -132,8 +127,8 @@ public class ServiceUnitTests {
     @Test
     void ListGamesTestFail() throws DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
-        CreateGameResult game1 = gameService.createGame(new CreateGameRequest("game1"));
-        CreateGameResult game2 = gameService.createGame(new CreateGameRequest("game2"));
+        gameService.createGame(new CreateGameRequest("game1"));
+        gameService.createGame(new CreateGameRequest("game2"));
         ListGamesResult result = gameService.listGames();
 
         Assertions.assertNotEquals(2, result.games().getFirst().gameID());

@@ -6,7 +6,6 @@ import server.handlers.*;
 import service.*;
 import spark.*;
 
-import javax.xml.crypto.Data;
 
 public class Server {
 
@@ -14,14 +13,12 @@ public class Server {
     private final AuthService authService;
     private final GameService gameService;
 
-    private final UserDAO userDataAccess;
     private final AuthDAO authDataAccess;
-    private final GameDAO gameDataAccess;
 
 
     public Server(){
-        this.gameDataAccess = new MemoryGameDAO();
-        this.userDataAccess = new MemoryUserDAO();
+        GameDAO gameDataAccess = new MemoryGameDAO();
+        UserDAO userDataAccess = new MemoryUserDAO();
         this.authDataAccess = new MemoryAuthDAO();
         this.userService = new UserService(userDataAccess,authDataAccess);
         this.authService = new AuthService(userDataAccess,authDataAccess);
