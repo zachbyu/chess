@@ -44,4 +44,5 @@ interface MoveCalculator {
             }while(infiniteMovement);
         }
     }
+
 }

@@ -183,20 +183,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)){
             return false;
         }
-        for (int row = 1; row <= 8; row ++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition myPosition = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(myPosition);
-                if (piece == null || piece.getTeamColor() != teamColor){
-                    continue;
-                }
-                Collection<ChessMove> moves = validMoves(myPosition);
-                if (!moves.isEmpty()){
-                    return false;
-                }
-            }
-        }
-        return true;
+        else return teamValidMoves(teamColor);
     }
 
     /**
@@ -209,7 +196,10 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)){
             return false;
-        }
+        } else return teamValidMoves(teamColor);
+    }
+
+    public boolean teamValidMoves(TeamColor teamColor){
         for (int row = 1; row <= 8; row ++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition myPosition = new ChessPosition(row, col);
