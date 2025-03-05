@@ -25,7 +25,9 @@ public class PawnMoves implements MoveCalculator {
         }else if(currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
             int newRow = currentRow + 1;
             ChessPosition newPosition = new ChessPosition(newRow, currentCol);
-            addPawnMoves(moves, newPosition, myPosition, board, newRow);
+            if (board.getPiece(newPosition) == null) {
+                addPawnMoves(moves, newPosition, myPosition, board, newRow);
+            }
         }
 
         //Black
@@ -42,7 +44,9 @@ public class PawnMoves implements MoveCalculator {
         }else if(currentPiece.getTeamColor() == ChessGame.TeamColor.BLACK){
             int newRow = currentRow - 1;
             ChessPosition newPosition = new ChessPosition(newRow, currentCol);
-            addPawnMoves(moves, newPosition, myPosition, board, newRow);
+            if (board.getPiece(newPosition) == null) {
+                addPawnMoves(moves, newPosition, myPosition, board, newRow);
+            }
         }
 
         //Capture Logic
@@ -56,14 +60,7 @@ public class PawnMoves implements MoveCalculator {
                 if (MoveCalculator.inBounds(newPosition)) {
                     //check if piece there
                     if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
-                        if (newRow == 8){
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.KNIGHT));
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.BISHOP));
-                        }else{
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        addPawnMoves(moves, newPosition, myPosition, board, newRow);
                     }
                 }
             }
@@ -79,14 +76,7 @@ public class PawnMoves implements MoveCalculator {
                 if (MoveCalculator.inBounds(newPosition)) {
                     //check if piece there
                     if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
-                        if (newRow == 1){
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.KNIGHT));
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.BISHOP));
-                        }else{
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        addPawnMoves(moves, newPosition, myPosition, board, newRow);
                     }
                 }
             }
@@ -97,20 +87,18 @@ public class PawnMoves implements MoveCalculator {
     }
 
     public static void addPawnMoves(HashSet<ChessMove> moves, ChessPosition newPosition, ChessPosition myPosition, ChessBoard board, int newRow){
+        if (!MoveCalculator.inBounds(newPosition)) {
+            return;
+        }
         if (newRow == 1 || newRow == 8){
-            if (board.getPiece(newPosition) == null){
                 moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.KNIGHT));
                 moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN));
                 moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.ROOK));
                 moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.BISHOP));
-            }
+
         }
         else {
-            if (MoveCalculator.inBounds(newPosition)) {
-                if (board.getPiece(newPosition) == null) {
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }
-            }
+                moves.add(new ChessMove(myPosition, newPosition, null));
         }
     }
 }
