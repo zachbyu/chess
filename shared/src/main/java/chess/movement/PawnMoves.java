@@ -53,6 +53,7 @@ public class PawnMoves implements MoveCalculator {
         //White
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
             int [][] changes = {{1, 1}, {1, -1}};
+            //combine with black capture for loop
             for (int[] item : changes) {
                 int newRow = currentRow + item[0];
                 int newCol = currentCol + item[1];
