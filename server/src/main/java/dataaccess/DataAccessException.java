@@ -6,6 +6,11 @@ package dataaccess;
 public class DataAccessException extends Exception{
 
     private final int errorType;
+    public DataAccessException(String message) {
+        super(message);
+        this.errorType = -1;
+    }
+
     public DataAccessException(int errorType, String message) {
         super(message);
         this.errorType = errorType;

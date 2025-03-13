@@ -17,12 +17,19 @@ public class Server {
 
 
     public Server(){
-        GameDAO gameDataAccess = new MemoryGameDAO();
-        UserDAO userDataAccess = new MemoryUserDAO();
-        this.authDataAccess = new MemoryAuthDAO();
+
+        GameDAO gameDataAccess = new SQLGameDAO();
+        UserDAO userDataAccess = new SQLUserDAO();
+        this.authDataAccess = new SQLAuthDAO();
         this.userService = new UserService(userDataAccess,authDataAccess);
         this.authService = new AuthService(userDataAccess,authDataAccess);
         this.gameService = new GameService(userDataAccess, authDataAccess, gameDataAccess);
+
+        try{
+            DatabaseManager.createDatabase();
+        }catch(DataAccessException ex){
+            throw new RuntimeException(ex);
+        }
     }
 
     public int run(int desiredPort) {
