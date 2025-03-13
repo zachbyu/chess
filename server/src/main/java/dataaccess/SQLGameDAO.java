@@ -70,11 +70,7 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public GameData updateGame(GameData game) throws DataAccessException {
-        try(var conn = DatabaseManager.getConnection()){
-            try(var statement = conn.prepareStatement("UPDATE game SET whiteUsername=?, blackUsername=?, gameData=? WHERE gameID=?")){
-
-            }
-        }
+        return null;
     }
 
     @Override
