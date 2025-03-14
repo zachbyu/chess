@@ -53,8 +53,8 @@ public class UserService {
         if (currentUser == null){
             throw new DataAccessException(401, "Error: unauthorized");
         }else{
-            String expected_pass = currentUser.password();
-            if (!BCrypt.checkpw(password, expected_pass)){
+            String expectedPass = currentUser.password();
+            if (!BCrypt.checkpw(password, expectedPass)){
                 throw new DataAccessException(401, "Error: unauthorized");
             }else{
                 String token = AuthService.generateToken();

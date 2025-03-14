@@ -183,7 +183,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)){
             return false;
         }
-        else return teamValidMoves(teamColor);
+        else {return teamValidMoves(teamColor);}
     }
 
     /**
@@ -196,7 +196,7 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)){
             return false;
-        } else return teamValidMoves(teamColor);
+        } else {return teamValidMoves(teamColor);}
     }
 
     public boolean teamValidMoves(TeamColor teamColor){

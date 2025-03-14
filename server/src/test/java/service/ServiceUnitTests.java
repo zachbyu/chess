@@ -39,7 +39,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void LoginTestSuccess() throws DataAccessException{
+    void loginTestSuccess() throws DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
         LoginRequest user = new LoginRequest("username", "password");
         LoginResult result = userService.login(user);
@@ -49,7 +49,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void LoginTestFail() throws DataAccessException{
+    void loginTestFail() throws DataAccessException{
         LoginRequest user = new LoginRequest("username", "password");
         DataAccessException ex = Assertions.assertThrows(DataAccessException.class, ()-> userService.login(user));
 
@@ -57,7 +57,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void LogoutTestSuccess() throws DataAccessException{
+    void logoutTestSuccess() throws DataAccessException{
         RegisterResult result = userService.register(new RegisterRequest("username", "password", "email@domain"));
         String authToken = result.authToken();
         userService.logout(authToken);
@@ -67,14 +67,14 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void LogoutTestFail() throws DataAccessException{
+    void logoutTestFail() throws DataAccessException{
         DataAccessException ex = Assertions.assertThrows(DataAccessException.class, ()-> userService.logout(null));
 
         Assertions.assertEquals("Error: unauthorized", ex.getMessage());
     }
 
     @Test
-    void CreateGameTestSuccess() throws DataAccessException{
+    void createGameTestSuccess() throws DataAccessException{
         CreateGameRequest request = new CreateGameRequest("game");
         CreateGameResult result = gameService.createGame(request);
 
@@ -82,7 +82,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void CreateGameTestFail() throws DataAccessException{
+    void createGameTestFail() throws DataAccessException{
         CreateGameRequest request = new CreateGameRequest("game");
         CreateGameResult result = gameService.createGame(request);
 
@@ -90,7 +90,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void JoinGameTestSuccess() throws  DataAccessException{
+    void joinGameTestSuccess() throws  DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
         CreateGameRequest request = new CreateGameRequest("game");
         gameService.createGame(request);
@@ -101,7 +101,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void JoinGameTestFail() throws  DataAccessException{
+    void joinGameTestFail() throws  DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
         userService.register(new RegisterRequest("existingUser", "newPassword", "email2@domain"));
         CreateGameRequest request = new CreateGameRequest("game");
@@ -114,7 +114,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void ListGamesTestSuccess() throws DataAccessException{
+    void listGamesTestSuccess() throws DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
         gameService.createGame(new CreateGameRequest("game1"));
         gameService.createGame(new CreateGameRequest("game2"));
@@ -125,7 +125,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void ListGamesTestFail() throws DataAccessException{
+    void listGamesTestFail() throws DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
         gameService.createGame(new CreateGameRequest("game1"));
         gameService.createGame(new CreateGameRequest("game2"));
@@ -136,7 +136,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    void ClearSuccess() throws DataAccessException{
+    void clearSuccess() throws DataAccessException{
         userService.register(new RegisterRequest("username", "password", "email@domain"));
         gameService.createGame(new CreateGameRequest("game1"));
         userService.clear();

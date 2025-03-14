@@ -9,9 +9,6 @@ import java.util.HashSet;
 
 interface MoveCalculator {
 
-//    static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
-//        return null;
-//    }
     static boolean inBounds(ChessPosition position){
         int row = position.getRow();
         int col = position.getColumn();
@@ -27,20 +24,19 @@ interface MoveCalculator {
                 newRow = newRow + item[0];
                 newCol = newCol + item[1];
                 ChessPosition newPosition = new ChessPosition(newRow, newCol);
-                if (MoveCalculator.inBounds(newPosition)) {
-                    //implement collision logic
-                    if(board.getPiece(newPosition) != null){
-                        if(board.getPiece(newPosition).getTeamColor() == currentPiece.getTeamColor()){
-                            break;
-                        }else{
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                            break;
-                        }
-                    }
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }else{
+                if (!MoveCalculator.inBounds(newPosition)) {
                     break;
                 }
+                //implement collision logic
+                if(board.getPiece(newPosition) != null){
+                    if(board.getPiece(newPosition).getTeamColor() == currentPiece.getTeamColor()){
+                        break;
+                    }else{
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                        break;
+                    }
+                }
+                moves.add(new ChessMove(myPosition, newPosition, null));
             }while(infiniteMovement);
         }
     }

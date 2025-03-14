@@ -102,4 +102,6 @@ public class PawnMoves implements MoveCalculator {
                 moves.add(new ChessMove(myPosition, newPosition, null));
         }
     }
+    
+    
 }
