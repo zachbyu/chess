@@ -45,8 +45,8 @@ public class SQLUserDAO implements UserDAO{
         try (var conn = DatabaseManager.getConnection()){
             try(var statement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")){
                 statement.setString(1, username);
-                try (var results = statement.executeQuery()){
-                    results.next();
+                var results = statement.executeQuery();
+                    if(results.next()){
                     var pass = results.getString("password");
                     var email = results.getString("email");
                     return new UserData(username, pass, email);
@@ -54,7 +54,7 @@ public class SQLUserDAO implements UserDAO{
             }
         }catch(SQLException e){
             throw new DataAccessException("User " + username + " does not exist");
-        }
+        }return null;
     }
 
     @Override

@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import server.handlers.RegisterRequest;
 import server.handlers.*;
 
@@ -53,7 +54,7 @@ public class UserService {
             throw new DataAccessException(401, "Error: unauthorized");
         }else{
             String expected_pass = currentUser.password();
-            if (!Objects.equals(password, expected_pass)){
+            if (!BCrypt.checkpw(password, expected_pass)){
                 throw new DataAccessException(401, "Error: unauthorized");
             }else{
                 String token = AuthService.generateToken();
