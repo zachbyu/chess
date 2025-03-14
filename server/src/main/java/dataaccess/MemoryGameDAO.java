@@ -17,8 +17,7 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public GameData createGame(GameData game) throws DataAccessException {
-        GameData newGame = new GameData(id, null, null, game.gameName(), new ChessGame());
-        id += 1;
+        GameData newGame = new GameData(game.gameID(), null, null, game.gameName(), new ChessGame());
         games.put(newGame.gameID(), newGame);
         return newGame;
     }
@@ -37,5 +36,15 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void clearGames() throws DataAccessException {
         games.clear();
+    }
+
+    @Override
+    public boolean gameExists(int gameID) {
+        for (int id : games.keySet()) {
+            if (id == gameID) {
+                return true;
+            }
+        }
+        return false;
     }
 }

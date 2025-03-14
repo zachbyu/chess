@@ -70,16 +70,56 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public GameData updateGame(GameData game) throws DataAccessException {
-        return null;
+        String chessGameString = new Gson().toJson(game.game());
+        try(var conn = DatabaseManager.getConnection()){
+            try (var statement = conn.prepareStatement("UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, chessGame=? WHERE gameID=?")){
+                statement.setString(1, game.whiteUsername());
+                statement.setString(2, game.blackUsername());
+                statement.setString(3, game.gameName());
+                statement.setString(4, chessGameString);
+                statement.setInt(5, game.gameID());
+                statement.executeUpdate();
+                return game;
+            }
+        }catch (SQLException e){
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
     public ArrayList<GameData> listGames() throws DataAccessException {
-        return null;
+        ArrayList<GameData> list = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection()){
+            try (var statement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, chessGame FROM game")){
+                try(var results = statement.executeQuery()){
+                    while (results.next()){
+                        var gameID = results.getInt("gameID")
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void clearGames() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()){
+            try(var statement = conn.prepareStatement("TRUNCATE game")) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }catch (SQLException | DataAccessException e){}
+    }
 
+    @Override
+    public boolean gameExists(int gameID) {
+        try (var conn = DatabaseManager.getConnection()){
+            try (var statement = conn.prepareStatement("SELECT gameID FROM game WHERE gameID=?")){
+                statement.setInt(1, gameID);
+                try (var results = statement.executeQuery()){
+                    return results.next();
+                }
+            }
+        }catch(SQLException | DataAccessException e){return false;}
     }
 }

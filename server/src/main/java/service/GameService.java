@@ -8,6 +8,7 @@ import dataaccess.UserDAO;
 import model.GameData;
 import server.handlers.*;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GameService {
     private final GameDAO gameDataAccess;
@@ -16,7 +17,12 @@ public class GameService {
         this.gameDataAccess = gameDataAccess;
     }
     public CreateGameResult createGame(CreateGameRequest createGameRequest)throws DataAccessException {
-        GameData game = new GameData(0, null, null, createGameRequest.gameName(), new ChessGame());
+        int gameID;
+        do {
+            gameID = ThreadLocalRandom.current().nextInt(1, 10000);
+        }while(gameDataAccess.gameExists(gameID));
+
+        GameData game = new GameData(gameID, null, null, createGameRequest.gameName(), new ChessGame());
         GameData insertedGame = gameDataAccess.createGame(game);
         return new CreateGameResult(insertedGame.gameID());
     }

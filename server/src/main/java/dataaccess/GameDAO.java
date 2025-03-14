@@ -12,4 +12,6 @@ public interface GameDAO {
     GameData updateGame(GameData game) throws DataAccessException;
     ArrayList<GameData> listGames() throws DataAccessException;
     void clearGames()throws DataAccessException;
+
+    boolean gameExists(int gameID);
 }
