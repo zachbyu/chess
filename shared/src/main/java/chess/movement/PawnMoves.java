@@ -54,37 +54,31 @@ public class PawnMoves implements MoveCalculator {
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
             int [][] changes = {{1, 1}, {1, -1}};
             //combine with black capture for loop
-            for (int[] item : changes) {
-                int newRow = currentRow + item[0];
-                int newCol = currentCol + item[1];
-                ChessPosition newPosition = new ChessPosition(newRow, newCol);
-                if (MoveCalculator.inBounds(newPosition)) {
-                    //check if piece there
-                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
-                        addPawnMoves(moves, newPosition, myPosition, board, newRow);
-                    }
-                }
-            }
+            capture(board, myPosition, changes, currentRow, currentCol, currentPiece, moves);
         }
 
         //Black Capture
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.BLACK){
             int [][] changes = {{-1, 1}, {-1, -1}};
-            for (int[] item : changes) {
-                int newRow = currentRow + item[0];
-                int newCol = currentCol + item[1];
-                ChessPosition newPosition = new ChessPosition(newRow, newCol);
-                if (MoveCalculator.inBounds(newPosition)) {
-                    //check if piece there
-                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
-                        addPawnMoves(moves, newPosition, myPosition, board, newRow);
-                    }
-                }
-            }
+            capture(board, myPosition, changes, currentRow, currentCol, currentPiece, moves);
         }
 
 
         return moves;
+    }
+
+    private static void capture(ChessBoard board, ChessPosition myPosition, int[][] changes, int currentRow, int currentCol, ChessPiece currentPiece, HashSet<ChessMove> moves) {
+        for (int[] item : changes) {
+            int newRow = currentRow + item[0];
+            int newCol = currentCol + item[1];
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (MoveCalculator.inBounds(newPosition)) {
+                //check if piece there
+                if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != currentPiece.getTeamColor()) {
+                    addPawnMoves(moves, newPosition, myPosition, board, newRow);
+                }
+            }
+        }
     }
 
     public static void addPawnMoves(HashSet<ChessMove> moves, ChessPosition newPosition, ChessPosition myPosition, ChessBoard board, int newRow){
