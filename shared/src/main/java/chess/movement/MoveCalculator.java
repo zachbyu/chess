@@ -16,7 +16,14 @@ interface MoveCalculator {
         return (row <= 8 && row > 0 && col > 0 && col <= 8);
 
     }
-    static void extracted(ChessBoard board, ChessPosition myPosition, int[][] changes, int currentRow, int currentCol, ChessPiece currentPiece, HashSet<ChessMove> moves, boolean infiniteMovement) {
+    static void extracted(ChessBoard board,
+                          ChessPosition myPosition,
+                          int[][] changes,
+                          int currentRow,
+                          int currentCol,
+                          ChessPiece currentPiece,
+                          HashSet<ChessMove> moves,
+                          boolean infiniteMovement) {
         for (int[] item : changes){
             int newRow = currentRow;
             int newCol = currentCol;

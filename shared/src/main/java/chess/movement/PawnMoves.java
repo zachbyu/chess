@@ -67,7 +67,13 @@ public class PawnMoves implements MoveCalculator {
         return moves;
     }
 
-    private static void capture(ChessBoard board, ChessPosition myPosition, int[][] changes, int currentRow, int currentCol, ChessPiece currentPiece, HashSet<ChessMove> moves) {
+    private static void capture(ChessBoard board,
+                                ChessPosition myPosition,
+                                int[][] changes,
+                                int currentRow,
+                                int currentCol,
+                                ChessPiece currentPiece,
+                                HashSet<ChessMove> moves) {
         for (int[] item : changes) {
             int newRow = currentRow + item[0];
             int newCol = currentCol + item[1];
