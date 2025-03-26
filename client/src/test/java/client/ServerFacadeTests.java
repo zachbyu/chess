@@ -50,4 +50,10 @@ public class ServerFacadeTests {
         assertTrue(result.authToken().length() > 10);
     }
 
+    @Test
+    public void registerTestInvalid() throws Exception{
+        RegisterRequest request = new RegisterRequest("username", null, "123@domain.com");
+        assertThrows(Exception.class, ()-> facade.register(request));
+    }
+
 }

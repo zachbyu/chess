@@ -25,25 +25,50 @@ public class ServerFacade {
         this.http = HttpClient.newHttpClient();
     }
 
-    public RegisterResult register(RegisterRequest request) throws Exception{
-        String endpoint = baseUrl + "/user";
-        Gson gson = new Gson();
-        JsonObject json = new JsonObject();
-        json.addProperty("username", request.username());
-        json.addProperty("password", request.password());
-        json.addProperty("email", request.email());
-        String requestBody = json.toString();
+    public RegisterResult register(RegisterRequest req) throws Exception {
+        var path = "/user";
+        RegisterResult res = this.makeRequest("POST", path, req, RegisterResult.class);
+        return res;
+    }
 
-        HttpRequest httpRequest = HttpRequest.newBuilder().uri(new URI(endpoint)).header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
+        try {
+            URL url = (new URI(baseUrl + path)).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod(method);
+            http.setDoOutput(true);
 
-        HttpResponse<String> response = http.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200){
-            throw new Exception("Registration failed");
+            writeBody(request, http);
+            http.connect();
+
+            return readBody(http, responseClass);
+        } catch (Exception ex) {
+            throw new Exception(ex.getMessage());
         }
-        return gson.fromJson(response.body(), RegisterResult.class);
+    }
+
+    private static void writeBody(Object request, HttpURLConnection http) throws IOException {
+        if (request != null) {
+            http.addRequestProperty("Content-Type", "application/json");
+            String reqData = new Gson().toJson(request);
+            try (OutputStream reqBody = http.getOutputStream()) {
+                reqBody.write(reqData.getBytes());
+            }
+        }
+    }
+
+    private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
+        T response = null;
+        if (http.getContentLength() < 0) {
+            try (InputStream respBody = http.getInputStream()) {
+                InputStreamReader reader = new InputStreamReader(respBody);
+                if (responseClass != null) {
+                    response = new Gson().fromJson(reader, responseClass);
+                }
+            }
+        }
+        return response;
     }
 
 
