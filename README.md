@@ -13,7 +13,7 @@ The application implements a multiplayer chess server and a command line chess c
 The application has three modules.
 
 - **Client**: The command line program used to play a game of chess over the network.
-- **Server**: The command line program that listens for network requests from the client and manages users and games.
+- **server**: The command line program that listens for network requests from the client and manages users and games.
 - **Shared**: Code that is used by both the client and the server. This includes the rules of chess and tracking the state of a game.
 
 ## Starter Code
