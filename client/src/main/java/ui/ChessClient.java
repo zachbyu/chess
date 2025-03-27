@@ -15,6 +15,7 @@ public class ChessClient {
     private static ArrayList<GameData> lastGameList;
     private static State state = State.LOGGEDOUT;
     private HashMap<Integer, GameData> gameMap = new HashMap<>();
+    private boolean white;
 
     public ChessClient(int port){
         facade = new ServerFacade(port);
@@ -54,6 +55,7 @@ public class ChessClient {
             case "create" -> createGame(params);
             case "list" -> listGames(params);
             case "observe" -> observeGame(params);
+            case "join" -> joinGame(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -162,6 +164,35 @@ public class ChessClient {
             }
         }
         throw new Exception("expected format: <gameID>");
+    }
+
+    private String joinGame(String[] params) throws Exception{
+        checkSignedIn();
+        if (params.length == 2) {
+            try {
+                int id = Integer.parseInt(params[0]);
+                ListGamesResult listResult = facade.listGames();
+                ArrayList<GameData> games = listResult.games();
+                ChessGame sendGame = null;
+                if (Objects.equals(params[1], "WHITE")){
+                     white = true;
+                } else if (Objects.equals(params[1], "BLACK")) {
+                    white = false;
+                }else{throw new Exception("Expected: <GameID> <WHITE/BLACK>");}
+                for (GameData game : games) {
+                    if (game.gameID() == id) {
+                        sendGame = game.game();
+                    }
+                }
+                if (sendGame != null){
+                    facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", id));
+                    return ("Now joining the game " + id + " as " + (white?"WHITE":"BLACK"));}
+                else{throw new Exception("not a valid gameID");}
+            } catch (Exception e) {
+                throw new Exception("failed to join game");
+            }
+        }
+        throw new Exception("expected format: <gameID> <WHITE/BLACK>");
     }
 
     private void checkSignedIn() throws Exception{
