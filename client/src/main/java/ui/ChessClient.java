@@ -122,7 +122,7 @@ public class ChessClient {
             CreateGameResult result = facade.createGame(request);
             return("Game "+ params[0] + " created with ID " + result.gameID());
         }
-        throw new Exception("Expected <game name>");
+        throw new Exception("Expected <game name>, one word names only");
     }
 
     private String listGames(String[] params)throws Exception{
@@ -141,18 +141,27 @@ public class ChessClient {
 
     private String observeGame(String[] params)throws Exception{
         checkSignedIn();
-        int id = Integer.parseInt(params[0]);
-        ListGamesResult listResult = facade.listGames();
-        ArrayList<GameData> games = listResult.games();
-        ChessGame sendGame = new ChessGame();
-        for (GameData game:games){
-            if (game.gameID() == id){
-                sendGame = game.game();
+        if (params.length == 1) {
+            try {
+                int id = Integer.parseInt(params[0]);
+                ListGamesResult listResult = facade.listGames();
+                ArrayList<GameData> games = listResult.games();
+                ChessGame sendGame = null;
+                for (GameData game : games) {
+                    if (game.gameID() == id) {
+                        sendGame = game.game();
+                    }
+                }
+                if (sendGame != null){
+                CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), true);
+                observedBoard.drawBoard();
+                return ("Now observing the game " + id);}
+                else{throw new Exception("not a valid gameID");}
+            } catch (Exception e) {
+                throw new Exception("not a valid gameID");
             }
         }
-        CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), true);
-        observedBoard.drawBoard();
-        return ("Now observing the game "+ id);
+        throw new Exception("expected format: <gameID>");
     }
 
     private void checkSignedIn() throws Exception{
