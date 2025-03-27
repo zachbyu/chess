@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
@@ -115,7 +116,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listTestInvalid() {
+    public void listTestInvalid() throws Exception{
         assertThrows(Exception.class, ()-> facade.listGames());
     }
 
@@ -124,6 +125,26 @@ public class ServerFacadeTests {
         CreateBoard board = new CreateBoard(new ChessBoard(), true);
         board.drawBoard();
     }
+
+    @Test
+    public void joinGameValid()throws Exception{
+        facade.register(new RegisterRequest("username", "pass", "email"));
+        CreateGameResult createResult = facade.createGame(new CreateGameRequest("Game 1"));
+        int ID = createResult.gameID();
+        facade.joinGame(new JoinGameRequest("WHITE", ID));
+        ListGamesResult listRes = facade.listGames();
+        ArrayList<GameData> games = listRes.games();
+        for (GameData game : games) {
+            assertEquals("username", game.whiteUsername());
+        }
+    }
+
+    @Test
+    public void joinGameInvalid()throws Exception{
+        facade.register(new RegisterRequest("username", "pass", "email"));
+        assertThrows(Exception.class, ()-> facade.joinGame(new JoinGameRequest("WHITE", 18)));
+    }
+
 
 
 }
