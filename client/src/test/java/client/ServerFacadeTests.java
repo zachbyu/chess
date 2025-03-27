@@ -139,7 +139,9 @@ public class ServerFacadeTests {
     @Test
     public void joinGameInvalid()throws Exception{
         facade.register(new RegisterRequest("username", "pass", "email"));
-        assertThrows(Exception.class, ()-> facade.joinGame(new JoinGameRequest("WHITE", 18)));
+        CreateGameResult result = facade.createGame(new CreateGameRequest("yo"));
+        facade.joinGame(new JoinGameRequest("WHITE", result.gameID()));
+        assertThrows(Exception.class, ()-> facade.joinGame(new JoinGameRequest("WHITE", result.gameID())));
     }
 
 

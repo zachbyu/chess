@@ -205,10 +205,14 @@ public class ChessClient {
 
                 if (gameMap.containsKey(id)){
                     GameData currentGame = gameMap.get(id);
-                    facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", currentGame.gameID()));
-                    CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), true);
-                    observeBoard.drawBoard();
-                    return ("Now joining the game " + currentGame.gameName()+ " as "+ (white?"WHITE":"BLACK"));
+                    try {
+                        facade.joinGame(new JoinGameRequest(white ? "WHITE" : "BLACK", currentGame.gameID()));
+                        CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), white);
+                        observeBoard.drawBoard();
+                        return ("Now joining the game " + currentGame.gameName() + " as " + (white ? "WHITE" : "BLACK"));
+                    } catch (Exception e) {
+                        return ("Could not join game, Assure spot is available");
+                    }
                 }else{
                     return ("Game not found, use list to see available games");
                 }
