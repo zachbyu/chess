@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class ChessClient {
     private static ServerFacade facade;
     private static final Scanner scan = new Scanner(System.in);
-    private static final String currAuthToken = null;
+    private static String currAuthToken = null;
     private static ArrayList<GameData> lastGameList;
     private static State state = State.LOGGEDOUT;
 
@@ -53,6 +53,7 @@ public class ChessClient {
         return switch (cmd){
             case "register" -> register(params);
             case "login" -> login(params);
+            case "logout" -> logout(params);
             default -> help();
         };
     }
@@ -83,6 +84,7 @@ public class ChessClient {
         if (params.length == 3){
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult result = facade.register(request);
+            currAuthToken = result.authToken();
             state = State.LOGGEDIN;
             return ("Registered as " + result.username());
         }
@@ -94,8 +96,27 @@ public class ChessClient {
             LoginRequest request = new LoginRequest(params[0], params[1]);
             LoginResult result = facade.login(request);
             state = State.LOGGEDIN;
-            return ("Logged in as" + result.username());
+            currAuthToken = result.authToken();
+            return ("Logged in as " + result.username());
         }
         throw new Exception("Expected <username> <password>");
+    }
+
+    private String logout(String[] params)throws Exception{
+        if (params.length == 0){
+            checkSignedIn();
+//            System.out.println(currAuthToken);
+            facade.logout(currAuthToken);
+            currAuthToken = null;
+            state = State.LOGGEDOUT;
+            return ("logged out successfully");
+        }
+        throw new Exception("Failed to logout.");
+    }
+
+    private void checkSignedIn() throws Exception{
+        if(state == State.LOGGEDOUT){
+            throw new Exception("Must be Signed in.");
+        }
     }
 }

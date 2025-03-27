@@ -29,8 +29,14 @@ public class ServerFacadeTests {
         facade = new ServerFacade(port);
 
         //clear db
-        HttpRequest clearRequest = HttpRequest.newBuilder().uri(new URI("http://localhost:" + port + "/db")).DELETE().build();
+        HttpRequest clearRequest = HttpRequest.newBuilder()
+                .uri(new URI("http://localhost:" + port + "/db"))
+                .DELETE()
+                .build();
         HttpResponse<String> clearResponse = HttpClient.newHttpClient().send(clearRequest, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("DB Clear Response Code: " + clearResponse.statusCode());
+        System.out.println("DB Clear Response Body: " + clearResponse.body());
     }
 
     @AfterEach
@@ -70,6 +76,20 @@ public class ServerFacadeTests {
     public void loginTestInvalid() throws Exception{
         LoginRequest request = new LoginRequest("username", null);
         assertThrows(Exception.class, ()-> facade.login(request));
+    }
+
+    @Test
+    public void logoutTestValid() throws Exception{
+        RegisterResult result = facade.register(new RegisterRequest("username", "password", "email"));
+        String auth = result.authToken();
+        facade.logout(auth);
+        assertThrows(Exception.class, ()-> facade.logout(auth));
+    }
+
+    @Test
+    public void logoutTestInvalid() throws Exception{
+        RegisterResult result = facade.register(new RegisterRequest("username", "password", "email"));
+        assertThrows(Exception.class, ()->facade.logout("notatoken"));
     }
 
 }

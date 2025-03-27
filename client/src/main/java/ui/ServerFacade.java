@@ -37,6 +37,19 @@ public class ServerFacade {
         return result;
     }
 
+    public void logout(String authToken) throws Exception{
+        String endpoint = baseUrl + "/session";
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken)
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        //        errors
+        if (response.statusCode() != 200) {
+            throw new Exception("Logout failed");
+        }
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
         try {
             URL url = (new URI(baseUrl + path)).toURL();
@@ -76,6 +89,8 @@ public class ServerFacade {
         }
         return response;
     }
+
+
 
 
 }
