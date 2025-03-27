@@ -25,10 +25,16 @@ public class ServerFacade {
         this.http = HttpClient.newHttpClient();
     }
 
-    public RegisterResult register(RegisterRequest req) throws Exception {
+    public RegisterResult register(RegisterRequest request) throws Exception {
         var path = "/user";
-        RegisterResult res = this.makeRequest("POST", path, req, RegisterResult.class);
-        return res;
+        RegisterResult result = this.makeRequest("POST", path, request, RegisterResult.class);
+        return result;
+    }
+
+    public LoginResult login(LoginRequest request) throws Exception {
+        var path = "/session";
+        LoginResult result = this.makeRequest("POST", path, request, LoginResult.class);
+        return result;
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {

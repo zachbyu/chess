@@ -2,6 +2,8 @@ package ui;
 
 import model.GameData;
 import server.Server;
+import server.handlers.LoginRequest;
+import server.handlers.LoginResult;
 import server.handlers.RegisterRequest;
 import server.handlers.RegisterResult;
 
@@ -50,6 +52,7 @@ public class ChessClient {
 
         return switch (cmd){
             case "register" -> register(params);
+            case "login" -> login(params);
             default -> help();
         };
     }
@@ -76,7 +79,7 @@ public class ChessClient {
                 """;
     }
 
-    public String register(String[] params) throws Exception{
+    private String register(String[] params) throws Exception{
         if (params.length == 3){
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult result = facade.register(request);
@@ -84,5 +87,15 @@ public class ChessClient {
             return ("Registered as " + result.username());
         }
         throw new Exception("Expected <Username> <password> <email>");
+    }
+
+    private String login(String[] params) throws Exception{
+        if (params.length == 2){
+            LoginRequest request = new LoginRequest(params[0], params[1]);
+            LoginResult result = facade.login(request);
+            state = State.LOGGEDIN;
+            return ("Logged in as" + result.username());
+        }
+        throw new Exception("Expected <username> <password>");
     }
 }

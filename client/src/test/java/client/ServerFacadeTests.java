@@ -2,6 +2,8 @@ package client;
 
 import org.junit.jupiter.api.*;
 import server.Server;
+import server.handlers.LoginRequest;
+import server.handlers.LoginResult;
 import server.handlers.RegisterRequest;
 import server.handlers.RegisterResult;
 import ui.ServerFacade;
@@ -54,6 +56,20 @@ public class ServerFacadeTests {
     public void registerTestInvalid() throws Exception{
         RegisterRequest request = new RegisterRequest("username", null, "123@domain.com");
         assertThrows(Exception.class, ()-> facade.register(request));
+    }
+
+    @Test
+    public void loginTestValid() throws Exception{
+        facade.register(new RegisterRequest("username", "password", "email"));
+        LoginRequest request = new LoginRequest("username", "password");
+        LoginResult result = facade.login(request);
+        assertTrue(result.authToken().length() > 10);
+    }
+
+    @Test
+    public void loginTestInvalid() throws Exception{
+        LoginRequest request = new LoginRequest("username", null);
+        assertThrows(Exception.class, ()-> facade.login(request));
     }
 
 }
