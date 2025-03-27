@@ -8,7 +8,7 @@ import java.util.*;
 
 public class ChessClient {
     private static ServerFacade facade;
-    private static final Scanner scan = new Scanner(System.in);
+    private static final Scanner SCAN = new Scanner(System.in);
     private static String currAuthToken = null;
     private static ArrayList<GameData> lastGameList;
     private static State state = State.LOGGEDOUT;
@@ -24,7 +24,7 @@ public class ChessClient {
         var response = "";
         while (!response.equals("quit")){
             printState();
-            String line = scan.nextLine();
+            String line = SCAN.nextLine();
             try {
                 response = this.evaluateLine(line);
                 System.out.print(response);

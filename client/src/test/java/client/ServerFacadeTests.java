@@ -127,8 +127,8 @@ public class ServerFacadeTests {
     public void joinGameValid()throws Exception{
         facade.register(new RegisterRequest("username", "pass", "email"));
         CreateGameResult createResult = facade.createGame(new CreateGameRequest("Game 1"));
-        int ID = createResult.gameID();
-        facade.joinGame(new JoinGameRequest("WHITE", ID));
+        int id = createResult.gameID();
+        facade.joinGame(new JoinGameRequest("WHITE", id));
         ListGamesResult listRes = facade.listGames();
         ArrayList<GameData> games = listRes.games();
         for (GameData game : games) {
