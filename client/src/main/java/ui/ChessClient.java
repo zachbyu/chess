@@ -82,61 +82,88 @@ public class ChessClient {
     }
 
     private String register(String[] params) throws Exception{
+        if (state.equals(State.LOGGEDIN)){
+            return ("Already logged in, please logout to register another user");
+        }
         if (params.length == 3){
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
-            RegisterResult result = facade.register(request);
-            currAuthToken = result.authToken();
-            state = State.LOGGEDIN;
-            return ("Registered as " + result.username());
+            try {
+                RegisterResult result = facade.register(request);
+                currAuthToken = result.authToken();
+                state = State.LOGGEDIN;
+                return ("Registered as " + result.username());
+            } catch (Exception e) {
+                return ("failed to register user, username is taken");
+            }
         }
-        throw new Exception("Expected <Username> <password> <email>");
+        return ("Expected <Username> <password> <email>");
     }
 
     private String login(String[] params) throws Exception{
+        if (state.equals(State.LOGGEDIN)){
+            return ("Already logged in, please logout to use another user");
+        }
         if (params.length == 2){
             LoginRequest request = new LoginRequest(params[0], params[1]);
-            LoginResult result = facade.login(request);
-            state = State.LOGGEDIN;
-            currAuthToken = result.authToken();
-            return ("Logged in as " + result.username());
+            try {
+                LoginResult result = facade.login(request);
+                state = State.LOGGEDIN;
+                currAuthToken = result.authToken();
+                return ("Logged in as " + result.username());
+            } catch (Exception e) {
+                return("failed to login user, please confirm your username and password");
+            }
         }
-        throw new Exception("Expected <username> <password>");
+        return ("Expected <username> <password>");
     }
 
     private String logout(String[] params)throws Exception{
         if (params.length == 0){
-            checkSignedIn();
+            try {
+                checkSignedIn();
 //            System.out.println(currAuthToken);
-            facade.logout(currAuthToken);
-            currAuthToken = null;
-            state = State.LOGGEDOUT;
-            return ("logged out successfully");
+                facade.logout(currAuthToken);
+                currAuthToken = null;
+                state = State.LOGGEDOUT;
+                return ("logged out successfully");
+            } catch (Exception e) {
+                return("failed to logout user");
+            }
         }
-        throw new Exception("Failed to logout.");
+        return ("Failed to logout.");
     }
 
     private String createGame(String[] params)throws Exception{
         checkSignedIn();
         if (params.length == 1){
-            CreateGameRequest request = new CreateGameRequest(params[0]);
-            CreateGameResult result = facade.createGame(request);
-            return("Game "+ params[0] + " created with ID " + result.gameID());
+            try {
+                CreateGameRequest request = new CreateGameRequest(params[0]);
+                CreateGameResult result = facade.createGame(request);
+                return ("Game " + params[0] + " created with ID " + result.gameID());
+            } catch (Exception e) {
+                return("failed to create game");
+            }
         }
-        throw new Exception("Expected <game name>, one word names only");
+        return ("Expected <game name>, one word names only");
     }
 
     private String listGames(String[] params)throws Exception{
         checkSignedIn();
         if (params.length == 0){
-            ListGamesResult result = facade.listGames();
-            ArrayList<GameData> games = result.games();
-            for (GameData game:games){
-                System.out.println("Game " + game.gameName() + " with Game ID " + game.gameID());
-                System.out.println("White Player " + game.whiteUsername() + ", Black Player " + game.blackUsername());
-                System.out.println();
-            }return ("All games listed");
+            try {
+                ListGamesResult result = facade.listGames();
+                ArrayList<GameData> games = result.games();
+                for (GameData game : games) {
+                    System.out.println("Game " + game.gameName() + " with Game ID " + game.gameID());
+                    System.out.println("White Player " + game.whiteUsername() + ", Black Player " + game.blackUsername());
+                    System.out.println();
+                }
+                return ("All games listed");
+            } catch (Exception e) {
+                return("games could not be listed");
+            }
         }else{
-        throw new Exception("Failed to List games");}
+        return ("No games exist, feel free to create one!");}
     }
 
     private String observeGame(String[] params)throws Exception{
@@ -158,10 +185,10 @@ public class ChessClient {
                 return ("Now observing the game " + id);}
                 else{throw new Exception("not a valid gameID");}
             } catch (Exception e) {
-                throw new Exception("not a valid gameID");
+                return ("Game does not exist");
             }
         }
-        throw new Exception("expected format: <gameID>");
+        return ("expected format: <gameID>");
     }
 
     private String joinGame(String[] params) throws Exception{
@@ -176,7 +203,7 @@ public class ChessClient {
                      white = true;
                 } else if (Objects.equals(params[1], "BLACK")) {
                     white = false;
-                }else{throw new Exception("Expected: <GameID> <WHITE/BLACK>");}
+                }else{return ("Expected: <GameID> <WHITE/BLACK>");}
                 for (GameData game : games) {
                     if (game.gameID() == id) {
                         sendGame = game.game();
@@ -184,13 +211,15 @@ public class ChessClient {
                 }
                 if (sendGame != null){
                     facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", id));
+                    CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), white);
+                    observedBoard.drawBoard();
                     return ("Now joining the game " + id + " as " + (white?"WHITE":"BLACK"));}
-                else{throw new Exception("not a valid gameID");}
+                else{return("not a valid gameID");}
             } catch (Exception e) {
-                throw new Exception("failed to join game");
+                return ("failed to join game, make sure there is space, or use observe to just watch");
             }
         }
-        throw new Exception("expected format: <gameID> <WHITE/BLACK>");
+        return ("expected format: <gameID> <WHITE/BLACK>");
     }
 
     private void checkSignedIn() throws Exception{
