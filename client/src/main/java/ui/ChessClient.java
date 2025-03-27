@@ -175,7 +175,6 @@ public class ChessClient {
             try {
                 int id = Integer.parseInt(params[0]);
                 ListGamesResult listResult = facade.listGames();
-                ArrayList<GameData> games = listResult.games();
 
                 try{
                     GameData currentGame = gameMap.get(id);
