@@ -1,9 +1,9 @@
 package service;
 import dataaccess.*;
+import handlers.*;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import server.handlers.*;
 import org.junit.jupiter.api.Test;
 
 public class ServiceUnitTests {

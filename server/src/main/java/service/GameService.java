@@ -5,8 +5,12 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import handlers.CreateGameRequest;
+import handlers.CreateGameResult;
+import handlers.JoinGameRequest;
+import handlers.ListGamesResult;
 import model.GameData;
-import server.handlers.*;
+
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 

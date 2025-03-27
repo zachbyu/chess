@@ -1,8 +1,8 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.*;
+import handlers.*;
 import model.AuthData;
-import server.handlers.*;
 import service.*;
 import spark.*;
 

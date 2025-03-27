@@ -1,13 +1,10 @@
 package client;
 
 import chess.ChessBoard;
-import chess.ChessGame;
-import model.AuthData;
+import handlers.*;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import server.handlers.*;
-import ui.ChessClient;
 import ui.CreateBoard;
 import ui.ServerFacade;
 

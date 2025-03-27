@@ -3,11 +3,13 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
+import handlers.LoginRequest;
+import handlers.LoginResult;
+import handlers.RegisterResult;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import server.handlers.RegisterRequest;
-import server.handlers.*;
+import handlers.RegisterRequest;
 
 import java.util.Objects;
 

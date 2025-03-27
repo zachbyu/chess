@@ -1,8 +1,8 @@
 package ui;
 
 import chess.ChessGame;
+import handlers.*;
 import model.GameData;
-import server.handlers.*;
 
 import java.util.*;
 
