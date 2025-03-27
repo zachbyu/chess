@@ -139,7 +139,7 @@ public class ChessClient {
             try {
                 CreateGameRequest request = new CreateGameRequest(params[0]);
                 CreateGameResult result = facade.createGame(request);
-                return ("Game " + params[0] + " created with ID " + result.gameID());
+                return ("Game " + params[0] + " created");
             } catch (Exception e) {
                 return("failed to create game");
             }
@@ -153,10 +153,13 @@ public class ChessClient {
             try {
                 ListGamesResult result = facade.listGames();
                 ArrayList<GameData> games = result.games();
+                int count = 1;
                 for (GameData game : games) {
-                    System.out.println("Game " + game.gameName() + " with Game ID " + game.gameID());
+                    gameMap.put(count, game);
+                    System.out.println(count+ ": " + game.gameName());
                     System.out.println("White Player " + game.whiteUsername() + ", Black Player " + game.blackUsername());
                     System.out.println();
+                    count ++;
                 }
                 return ("All games listed");
             } catch (Exception e) {
@@ -173,18 +176,25 @@ public class ChessClient {
                 int id = Integer.parseInt(params[0]);
                 ListGamesResult listResult = facade.listGames();
                 ArrayList<GameData> games = listResult.games();
-                ChessGame sendGame = null;
-                for (GameData game : games) {
-                    if (game.gameID() == id) {
-                        sendGame = game.game();
-                    }
+//                ChessGame sendGame = null;
+//                for (GameData game : games) {
+//                    if (game.gameID() == id) {
+//                        sendGame = game.game();
+//                    }
+//                }
+//                if (sendGame != null){
+//                CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), true);
+//                observedBoard.drawBoard();
+                try{
+                    GameData currentGame = gameMap.get(id);
+                    CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), true);
+                    observeBoard.drawBoard();
+                    return ("Now observing the game " + currentGame.gameName());
+                }catch(Exception e) {
+                    return("not a valid id");
                 }
-                if (sendGame != null){
-                CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), true);
-                observedBoard.drawBoard();
-                return ("Now observing the game " + id);}
-                else{throw new Exception("not a valid gameID");}
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 return ("Game does not exist");
             }
         }
@@ -196,27 +206,33 @@ public class ChessClient {
         if (params.length == 2) {
             try {
                 int id = Integer.parseInt(params[0]);
-                ListGamesResult listResult = facade.listGames();
-                ArrayList<GameData> games = listResult.games();
-                ChessGame sendGame = null;
                 if (Objects.equals(params[1], "WHITE")){
                      white = true;
                 } else if (Objects.equals(params[1], "BLACK")) {
                     white = false;
                 }else{return ("Expected: <GameID> <WHITE/BLACK>");}
-                for (GameData game : games) {
-                    if (game.gameID() == id) {
-                        sendGame = game.game();
-                    }
+//                for (GameData game : games) {
+//                    if (game.gameID() == id) {
+//                        sendGame = game.game();
+//                    }
+//                }
+//                if (sendGame != null){
+//                    facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", id));
+//                    CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), white);
+//                    observedBoard.drawBoard();
+//                    return ("Now joining the game " + id + " as " + (white?"WHITE":"BLACK"));}
+//                else{return("not a valid gameID");}
+                if (gameMap.containsKey(id)){
+                    GameData currentGame = gameMap.get(id);
+                    facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", currentGame.gameID()));
+                    CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), true);
+                    observeBoard.drawBoard();
+                    return ("Now joining the game " + currentGame.gameName()+ " as "+ (white?"WHITE":"BLACK"));
+                }else{
+                    return ("Game not found, use list to see available games");
                 }
-                if (sendGame != null){
-                    facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", id));
-                    CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), white);
-                    observedBoard.drawBoard();
-                    return ("Now joining the game " + id + " as " + (white?"WHITE":"BLACK"));}
-                else{return("not a valid gameID");}
             } catch (Exception e) {
-                return ("failed to join game, make sure there is space, or use observe to just watch");
+                return ("expected format: <gameID> <WHITE/BLACK>");
             }
         }
         return ("expected format: <gameID> <WHITE/BLACK>");
