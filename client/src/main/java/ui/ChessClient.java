@@ -176,15 +176,7 @@ public class ChessClient {
                 int id = Integer.parseInt(params[0]);
                 ListGamesResult listResult = facade.listGames();
                 ArrayList<GameData> games = listResult.games();
-//                ChessGame sendGame = null;
-//                for (GameData game : games) {
-//                    if (game.gameID() == id) {
-//                        sendGame = game.game();
-//                    }
-//                }
-//                if (sendGame != null){
-//                CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), true);
-//                observedBoard.drawBoard();
+
                 try{
                     GameData currentGame = gameMap.get(id);
                     CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), true);
@@ -211,17 +203,7 @@ public class ChessClient {
                 } else if (Objects.equals(params[1], "BLACK")) {
                     white = false;
                 }else{return ("Expected: <GameID> <WHITE/BLACK>");}
-//                for (GameData game : games) {
-//                    if (game.gameID() == id) {
-//                        sendGame = game.game();
-//                    }
-//                }
-//                if (sendGame != null){
-//                    facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", id));
-//                    CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), white);
-//                    observedBoard.drawBoard();
-//                    return ("Now joining the game " + id + " as " + (white?"WHITE":"BLACK"));}
-//                else{return("not a valid gameID");}
+
                 if (gameMap.containsKey(id)){
                     GameData currentGame = gameMap.get(id);
                     facade.joinGame(new JoinGameRequest(white?"WHITE":"BLACK", currentGame.gameID()));
