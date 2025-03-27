@@ -1,13 +1,12 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.GameData;
 import server.Server;
 import server.handlers.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ChessClient {
     private static ServerFacade facade;
@@ -15,6 +14,7 @@ public class ChessClient {
     private static String currAuthToken = null;
     private static ArrayList<GameData> lastGameList;
     private static State state = State.LOGGEDOUT;
+    private HashMap<Integer, GameData> gameMap = new HashMap<>();
 
     public ChessClient(int port){
         facade = new ServerFacade(port);
@@ -52,6 +52,8 @@ public class ChessClient {
             case "login" -> login(params);
             case "logout" -> logout(params);
             case "create" -> createGame(params);
+            case "list" -> listGames(params);
+            case "observe" -> observeGame(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -121,6 +123,36 @@ public class ChessClient {
             return("Game "+ params[0] + " created with ID " + result.gameID());
         }
         throw new Exception("Expected <game name>");
+    }
+
+    private String listGames(String[] params)throws Exception{
+        checkSignedIn();
+        if (params.length == 0){
+            ListGamesResult result = facade.listGames();
+            ArrayList<GameData> games = result.games();
+            for (GameData game:games){
+                System.out.println("Game " + game.gameName() + " with Game ID " + game.gameID());
+                System.out.println("White Player " + game.whiteUsername() + ", Black Player " + game.blackUsername());
+                System.out.println();
+            }return ("All games listed");
+        }else{
+        throw new Exception("Failed to List games");}
+    }
+
+    private String observeGame(String[] params)throws Exception{
+        checkSignedIn();
+        int id = Integer.parseInt(params[0]);
+        ListGamesResult listResult = facade.listGames();
+        ArrayList<GameData> games = listResult.games();
+        ChessGame sendGame = new ChessGame();
+        for (GameData game:games){
+            if (game.gameID() == id){
+                sendGame = game.game();
+            }
+        }
+        CreateBoard observedBoard = new CreateBoard(sendGame.getBoard(), true);
+        observedBoard.drawBoard();
+        return ("Now observing the game "+ id);
     }
 
     private void checkSignedIn() throws Exception{

@@ -1,15 +1,20 @@
 package client;
 
+import chess.ChessBoard;
 import model.AuthData;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.handlers.*;
+import ui.ChessClient;
+import ui.CreateBoard;
 import ui.ServerFacade;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +96,6 @@ public class ServerFacadeTests {
     @Test
     public void createTestValid() throws Exception {
         RegisterResult registered = facade.register(new RegisterRequest("username", "32", "email"));
-        //not sure if this authtoken works or not
         CreateGameResult result = facade.createGame(new CreateGameRequest("myGame"));
         assertTrue(result.gameID() > 0);
     }
@@ -100,5 +104,26 @@ public class ServerFacadeTests {
     public void createTestInvalid() throws Exception{
         assertThrows(Exception.class, ()->facade.createGame(new CreateGameRequest("myGame")));
     }
+
+    @Test
+    public void listTestValid() throws Exception {
+        facade.register(new RegisterRequest("username", "pass", "email"));
+        facade.createGame(new CreateGameRequest("Game 1"));
+        facade.createGame(new CreateGameRequest("Game 2"));
+        ListGamesResult result = facade.listGames();
+        assertEquals(2, result.games().size());
+    }
+
+    @Test
+    public void listTestInvalid() {
+        assertThrows(Exception.class, ()-> facade.listGames());
+    }
+
+    @Test
+    public void drawGame(){
+        CreateBoard board = new CreateBoard(new ChessBoard(), true);
+        board.drawBoard();
+    }
+
 
 }
