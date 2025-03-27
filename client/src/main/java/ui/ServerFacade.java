@@ -19,21 +19,25 @@ import server.handlers.*;
 public class ServerFacade {
     private final HttpClient http;
     private final String baseUrl;
+    private String authToken;
 
     public ServerFacade(int port){
         this.baseUrl = "http://localhost:" + port;
         this.http = HttpClient.newHttpClient();
+        this.authToken = null;
     }
 
     public RegisterResult register(RegisterRequest request) throws Exception {
         var path = "/user";
         RegisterResult result = this.makeRequest("POST", path, request, RegisterResult.class);
+        authToken = result.authToken();
         return result;
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
         var path = "/session";
         LoginResult result = this.makeRequest("POST", path, request, LoginResult.class);
+        authToken = result.authToken();
         return result;
     }
 
@@ -50,6 +54,11 @@ public class ServerFacade {
         }
     }
 
+    public CreateGameResult createGame(CreateGameRequest request) throws Exception{
+        var path = "/game";
+        return this.makeRequest("POST", path, request, CreateGameResult.class);
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
         try {
             URL url = (new URI(baseUrl + path)).toURL();
@@ -57,6 +66,9 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
+            if (authToken != null && !authToken.isEmpty()) {
+                http.setRequestProperty("authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();

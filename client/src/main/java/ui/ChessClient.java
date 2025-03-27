@@ -2,10 +2,7 @@ package ui;
 
 import model.GameData;
 import server.Server;
-import server.handlers.LoginRequest;
-import server.handlers.LoginResult;
-import server.handlers.RegisterRequest;
-import server.handlers.RegisterResult;
+import server.handlers.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +51,8 @@ public class ChessClient {
             case "register" -> register(params);
             case "login" -> login(params);
             case "logout" -> logout(params);
+            case "create" -> createGame(params);
+            case "quit" -> "quit";
             default -> help();
         };
     }
@@ -112,6 +111,16 @@ public class ChessClient {
             return ("logged out successfully");
         }
         throw new Exception("Failed to logout.");
+    }
+
+    private String createGame(String[] params)throws Exception{
+        checkSignedIn();
+        if (params.length == 1){
+            CreateGameRequest request = new CreateGameRequest(params[0]);
+            CreateGameResult result = facade.createGame(request);
+            return("Game "+ params[0] + " created with ID " + result.gameID());
+        }
+        throw new Exception("Expected <game name>");
     }
 
     private void checkSignedIn() throws Exception{

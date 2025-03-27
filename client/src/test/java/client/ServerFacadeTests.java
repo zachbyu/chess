@@ -1,11 +1,9 @@
 package client;
 
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import server.handlers.LoginRequest;
-import server.handlers.LoginResult;
-import server.handlers.RegisterRequest;
-import server.handlers.RegisterResult;
+import server.handlers.*;
 import ui.ServerFacade;
 
 import java.net.URI;
@@ -35,8 +33,6 @@ public class ServerFacadeTests {
                 .build();
         HttpResponse<String> clearResponse = HttpClient.newHttpClient().send(clearRequest, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println("DB Clear Response Code: " + clearResponse.statusCode());
-        System.out.println("DB Clear Response Body: " + clearResponse.body());
     }
 
     @AfterEach
@@ -90,6 +86,19 @@ public class ServerFacadeTests {
     public void logoutTestInvalid() throws Exception{
         RegisterResult result = facade.register(new RegisterRequest("username", "password", "email"));
         assertThrows(Exception.class, ()->facade.logout("notatoken"));
+    }
+
+    @Test
+    public void createTestValid() throws Exception {
+        RegisterResult registered = facade.register(new RegisterRequest("username", "32", "email"));
+        //not sure if this authtoken works or not
+        CreateGameResult result = facade.createGame(new CreateGameRequest("myGame"));
+        assertTrue(result.gameID() > 0);
+    }
+
+    @Test
+    public void createTestInvalid() throws Exception{
+        assertThrows(Exception.class, ()->facade.createGame(new CreateGameRequest("myGame")));
     }
 
 }
