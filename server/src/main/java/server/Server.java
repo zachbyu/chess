@@ -3,8 +3,10 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import handlers.*;
 import model.AuthData;
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
+import server.websocket.WebSocketHandler;
 
 
 public class Server {
@@ -14,6 +16,7 @@ public class Server {
     private final GameService gameService;
 
     private final AuthDAO authDataAccess;
+    private final WebSocketHandler webSocketHandler;
 
 
     public Server(){
@@ -29,6 +32,7 @@ public class Server {
         this.userService = new UserService(userDataAccess,authDataAccess);
         this.authService = new AuthService(userDataAccess,authDataAccess);
         this.gameService = new GameService(userDataAccess, authDataAccess, gameDataAccess);
+        webSocketHandler = new WebSocketHandler();
 
     }
 
@@ -39,6 +43,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
 //        Spark.delete("/db", this::clear);
+        Spark.webSocket("/ws", webSocketHandler);
         Spark.post("/user", this::register);
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);

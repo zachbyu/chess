@@ -1,4 +1,4 @@
-package server;
+package server.websocket;
 
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
