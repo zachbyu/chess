@@ -96,6 +96,7 @@ public class WebSocketHandler {
 
         if(game.isGameOver()){
             connections.sendMessage(session, new ErrorMessage(ERROR, "Error: game is over, no moves may be made"));
+            return;
         }
 
         ChessBoard board = game.getBoard();
@@ -107,10 +108,12 @@ public class WebSocketHandler {
 
         if(currTurnColor != getPlayerColor(username, gameData)){
             connections.sendMessage(session, new ErrorMessage(ERROR, "Error: must be players turn"));
+            return;
         }
         ChessPiece movePiece = board.getPiece(startPos);
         if(currTurnColor != movePiece.getTeamColor()){
             connections.sendMessage(session, new ErrorMessage(ERROR, "Error: cannot move piece you do not own"));
+            return;
         }
 
         if(currTurnColor==WHITE){
@@ -139,7 +142,6 @@ public class WebSocketHandler {
         GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
         gameDAO.updateGame(updatedGame);
 
-        //send load message
         LoadGameMessage gameMessage = new LoadGameMessage(LOAD_GAME, game, playerType);
         connections.broadcast(gameID, "", gameMessage);
 
@@ -193,7 +195,29 @@ public class WebSocketHandler {
     }
 
     private void resign(Session session, String username, UserGameCommand command) throws  DataAccessException, IOException{
-        return;
+        int gameID = command.getGameID();
+        GameData gameData = getValidGameData(session, gameID);
+        if (gameData == null) {return;}
+
+        if (getPlayerColor(username, gameData)!=null){
+            System.out.println("valid resign request received from a player");
+            ChessGame chessGame = gameData.game();
+            GameData gameOver;
+            if(!chessGame.isGameOver()){
+                chessGame.setGameOver(true);
+                NotificationMessage resignMessage = new NotificationMessage(NOTIFICATION, String.format("%s resigned from the game", username));
+                connections.broadcast(gameID, "", resignMessage);
+
+                gameOver = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame);
+                gameDAO.updateGame(gameOver);
+            }
+            else{
+                connections.sendMessage(session, new ErrorMessage(ERROR, "Error: cannot resign from game that is already over"));
+            }
+        }
+        else{
+            connections.sendMessage(session, new ErrorMessage(ERROR, "Error: observer cannot resign from a game"));
+        }
     }
 
     private GameData getValidGameData(Session session, int gameID) throws DataAccessException, IOException {
