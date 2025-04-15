@@ -151,18 +151,20 @@ public class WebSocketHandler {
         connections.broadcast(gameID, username, moveNotification);
 
         //send extra notification messages
+        if(game.isInCheckmate(otherTeamColor)){
+            String checkmateMessage = otherTeamColor + " player " + username + " is in checkmate. Game over.";
+            NotificationMessage checkmateNotification = new NotificationMessage(NOTIFICATION, checkmateMessage);
+            connections.broadcast(gameID, "", checkmateNotification);
+            game.setGameOver(true);
+            return;
+        }
+
         if(game.isInCheck(otherTeamColor)){
             String checkMessage = otherTeamColor + " player " + username + " is in check";
             NotificationMessage checkNotification = new NotificationMessage(NOTIFICATION, checkMessage);
             connections.broadcast(gameID, "", checkNotification);
         }
 
-        if(game.isInCheckmate(otherTeamColor)){
-            String checkmateMessage = otherTeamColor + " player " + username + " is in checkmate. Game over.";
-            NotificationMessage checkmateNotification = new NotificationMessage(NOTIFICATION, checkmateMessage);
-            connections.broadcast(gameID, "", checkmateNotification);
-            game.setGameOver(true);
-        }
 
         if(game.isInStalemate(otherTeamColor)){
             String stalemateMessage = otherTeamColor + " player " + username + " is in stalemate. Game over.";
