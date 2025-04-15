@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import handlers.*;
 import model.GameData;
@@ -10,6 +12,7 @@ import websocket.messages.*;
 
 import java.util.*;
 
+import static chess.ChessPiece.PieceType.*;
 import static ui.EscapeSequences.*;
 
 public class ChessClient implements ServerMessageObserver {
@@ -66,6 +69,10 @@ public class ChessClient implements ServerMessageObserver {
             case "observe" -> observeGame(params);
             case "join" -> joinGame(params);
             case "redraw" -> redraw(params);
+            case "move" -> makeMove(params);
+            case "highlight" -> highlightMoves(params);
+            case "resign" -> resign(params);
+            case "leave" -> leaveGame(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -201,7 +208,7 @@ public class ChessClient implements ServerMessageObserver {
                 ListGamesResult listResult = facade.listGames();
 
                 try{
-                    GameData currGame = gameMap.get(id);
+                    currGame = gameMap.get(id);
 //                    CreateBoard observeBoard = new CreateBoard(currGame.game().getBoard(), true);
 //                    observeBoard.drawBoard();
                     websocket = new WebSocketFacade(baseURL, this);
@@ -232,14 +239,17 @@ public class ChessClient implements ServerMessageObserver {
                 }else{return ("Expected: <GameID> <WHITE/BLACK>");}
 
                 if (gameMap.containsKey(id)){
-                    GameData currentGame = gameMap.get(id);
+                    currGame = gameMap.get(id);
                     try {
-                        facade.joinGame(new JoinGameRequest(white ? "WHITE" : "BLACK", currentGame.gameID()));
-                        CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), white, null);
-                        observeBoard.drawBoard();
-                        return ("Now joining the game " + currentGame.gameName() + " as " + (white ? "WHITE" : "BLACK"));
+                        facade.joinGame(new JoinGameRequest(white ? "WHITE" : "BLACK", currGame.gameID()));
+                        state = State.INGAME;
+                        websocket = new WebSocketFacade(baseURL, this);
+                        websocket.joinGame(currAuthToken, currGame.gameID());
+//                        CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), white, null);
+//                        observeBoard.drawBoard();
+                        return ("Now joining the game " + currGame.gameName() + " as " + (white ? "WHITE" : "BLACK"));
                     } catch (Exception e) {
-                        return ("Could not join game, Assure spot is available");
+                        return ("Could not join game, confirm spot is available");
                     }
                 }else{
                     return ("Game not found, use list to see available games");
@@ -252,8 +262,106 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private String redraw(String[] params) throws Exception{
-        drawCurrentBoard(currGame.gameID(), white, null);
-        return "board redrawn";
+        try{
+            drawCurrentBoard(currGame.gameID(), white, null);
+            return "board redrawn";
+        }catch (Exception e){
+            return "could not draw board";
+        }
+    }
+
+    private String makeMove(String[] params)throws Exception{
+        if(params.length == 1 || params.length == 3){
+            String req = params[0];
+            if(req.length()!=4){
+                return "expected move in the format d2d4";
+            }
+            int startRow = getRow(req.substring(0,2));
+            int startCol = getCol(req.substring(0,2));
+            ChessPosition startPos = new ChessPosition(startRow, startCol);
+            String start = req.substring(0,2);
+
+            int endRow = getRow(req.substring(2,4));
+            int endCol = getCol(req.substring(2,4));
+            ChessPosition endPos = new ChessPosition(endRow, endCol);
+            String end = req.substring(2,4);
+
+            ChessMove move;
+            if(params.length == 1){
+                move = new ChessMove(startPos, endPos, null);
+            }
+            else{
+                if(params[2].equals("Queen")){move = new ChessMove(startPos, endPos, QUEEN);}
+                else if(params[2].equals("Knight")){move = new ChessMove(startPos, endPos, KNIGHT);}
+                else if(params[2].equals("Rook")){move = new ChessMove(startPos, endPos, ROOK);}
+                else if(params[2].equals("Bishop")){move = new ChessMove(startPos, endPos, BISHOP);}
+                else{return "Please enter valid piece type";}
+            }
+
+            websocket.makeMove(currAuthToken, currGame.gameID(), move, start, end);
+            drawCurrentBoard(currGame.gameID(), white, null);
+            return ("move made");
+        }
+        return ("Expected: move <d7d8> -> <Queen>");
+    }
+
+    private String highlightMoves(String[] params) throws Exception {
+        if(params.length == 1) {
+            String req = params[0];
+
+            int row = getRow(req);
+            int col = getCol(req);
+
+            ChessPosition pos = new ChessPosition(row,col);
+            ChessGame chessGame = currGame.game();
+
+            Collection<ChessMove> moves = chessGame.validMoves(pos);
+            int numMoves = moves.size();
+            int[][] positions = new int[numMoves][2];
+            int i=0;
+
+            for (ChessMove move: moves){
+                ChessPosition potentialMove = move.getEndPosition();
+                positions[i][0] = potentialMove.getRow();
+                positions[i][1] = potentialMove.getColumn();
+
+                if (!white) {
+                    row = 9 - row;  // flip row: 1↔8, 2↔7, etc.
+                    col = 9 - col;  // flip column: a↔h, b↔g, etc.
+                }
+
+                i++;
+            }
+            drawCurrentBoard(currGame.gameID(), white, positions);
+
+            return ("You highlighted moves for " + req + "\n");
+        }
+        return("Expected form: highlight <a1>");
+    }
+
+    private String resign(String[] params) throws Exception {
+
+        System.out.println("Are you sure you want to resign? This action is irreversible: Y/N:");
+
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+
+        if(line.equals("Y")){
+            websocket.resign(currAuthToken, currGame.gameID());
+            return "You have now resigned, the game is over.";
+        }
+        else if(line.equals("N")){
+            return "Resignation cancelled, the game is still going.";
+        }
+        else{
+            return "Please enter Y for yes or N for no";
+        }
+    }
+
+    private String leaveGame(String[] params) throws Exception {
+        websocket.leaveGame(currAuthToken, currGame.gameID());
+        state = State.LOGGEDIN;
+        return "game left successfully";
     }
 
     private void drawCurrentBoard(int id, boolean white, int[][] highlights) throws Exception {
@@ -297,20 +405,50 @@ public class ChessClient implements ServerMessageObserver {
     }
     private void displayNotification(String message){
         NotificationMessage notificationMessage = gson.fromJson(message, NotificationMessage.class);
-        System.out.print(SET_TEXT_COLOR_BLUE);
         System.out.println(notificationMessage.getMessage());
     }
     private void displayError(String message){
         ErrorMessage errorMessage = gson.fromJson(message, ErrorMessage.class);
-        System.out.print(SET_TEXT_COLOR_RED);
         System.out.println(errorMessage.getErrorMessage());
-        System.out.print(SET_TEXT_COLOR_GREEN);
     }
     private void loadGame(String message){
         LoadGameMessage loadGameMessage = gson.fromJson(message, LoadGameMessage.class);
         currGame = new GameData(currGame.gameID(), currGame.whiteUsername(), currGame.blackUsername(), currGame.gameName(), loadGameMessage.getGame());
         drawChessGame(white, null, loadGameMessage.getGame());
         System.out.println();
+    }
+
+
+    private static int getRow(String req) throws Exception {
+        int row;
+        if (req.charAt(1) == '1'){row = 1;}
+        else if (req.charAt(1) == '2') {row = 2;}
+        else if (req.charAt(1) == '3') {row = 3;}
+        else if (req.charAt(1) == '4') {row = 4;}
+        else if (req.charAt(1) == '5') {row = 5;}
+        else if (req.charAt(1) == '6') {row = 6;}
+        else if (req.charAt(1) == '7') {row = 7;}
+        else if (req.charAt(1) == '8') {row = 8;}
+        else {
+            throw new Exception("Please enter the square in form [abcdefgh][12345678]");
+        }
+        return row;
+    }
+
+    private static int getCol(String req) throws Exception {
+        int col;
+        if (req.charAt(0) == 'a'){col = 1;}
+        else if (req.charAt(0) == 'b') {col = 2;}
+        else if (req.charAt(0) == 'c') {col = 3;}
+        else if (req.charAt(0) == 'd') {col = 4;}
+        else if (req.charAt(0) == 'e') {col = 5;}
+        else if (req.charAt(0) == 'f') {col = 6;}
+        else if (req.charAt(0) == 'g') {col = 7;}
+        else if (req.charAt(0) == 'h') {col = 8;}
+        else {
+            throw new Exception("Please enter the square in form [abcdefgh][12345678]");
+        }
+        return col;
     }
 
 

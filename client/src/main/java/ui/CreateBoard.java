@@ -11,14 +11,18 @@ public class CreateBoard {
     private boolean whitePerspective;
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private chess.ChessBoard currentBoard;
+    private int[][] highlights;
 
     public CreateBoard(chess.ChessBoard importedBoard, boolean whitePerspective, int[][] highlights){
         this.currentBoard = importedBoard;
         this.whitePerspective = whitePerspective;
+        this.highlights = highlights;
     }
 
     public void drawBoard(){
         System.out.print(ERASE_SCREEN);
+        System.out.println();
+        drawHeaders(whitePerspective);
         drawChessBoard();
         drawHeaders(whitePerspective);
         System.out.print(SET_TEXT_COLOR_WHITE);
@@ -37,6 +41,7 @@ public class CreateBoard {
             System.out.print(" ");
 
         }
+        System.out.print("   ");
         System.out.print(RESET_BG_COLOR);
         System.out.println();
     }
@@ -69,6 +74,7 @@ public class CreateBoard {
                 drawWhiteSquare(boardRow, boardCol);
             }
         }
+        drawRowNumberSquare(boardRow);
         System.out.print(RESET_BG_COLOR);
         System.out.println();
     }
@@ -82,18 +88,44 @@ public class CreateBoard {
                 drawBlackSquare(boardRow, boardCol);
             }
         }
+        drawRowNumberSquare(boardRow);
         System.out.print(RESET_BG_COLOR);
         System.out.println();
     }
 
     private void drawBlackSquare(int boardRow, int boardCol){
-        System.out.print(SET_BG_COLOR_DARK_GREEN);
-        drawPieces(boardRow, boardCol);
+//        System.out.print(SET_BG_COLOR_DARK_GREEN);
+//        drawPieces(boardRow, boardCol);
+        drawSquare(boardRow, boardCol, SET_BG_COLOR_GREEN, SET_BG_COLOR_DARK_GREEN);
     }
 
     private void drawWhiteSquare(int boardRow, int boardCol) {
-        System.out.print(SET_BG_COLOR_WHITE);
+//        System.out.print(SET_BG_COLOR_WHITE);
+//        drawPieces(boardRow, boardCol);
+        drawSquare(boardRow, boardCol, SET_BG_COLOR_GREEN, SET_BG_COLOR_WHITE);
+    }
+
+    private void drawSquare(int boardRow, int boardCol, String setBgColorHighlight, String setBgColorNormal) {
+        boolean highlighted = isHighlighted(boardRow, boardCol);
+        if (highlighted) {
+            System.out.print(setBgColorHighlight);
+        } else {
+            System.out.print(setBgColorNormal);
+        }
         drawPieces(boardRow, boardCol);
+    }
+
+    private boolean isHighlighted(int boardRow, int boardCol) {
+        boolean highlighted = false;
+        if (highlights != null) {
+            for (int i = 0; i < highlights.length; i++) {
+                if (highlights[i][0] == boardRow && highlights[i][1] == boardCol) {
+                    highlighted = true;
+                    break;
+                }
+            }
+        }
+        return highlighted;
     }
 
     private static void drawRowNumberSquare(int boardRow) {

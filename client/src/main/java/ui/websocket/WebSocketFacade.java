@@ -23,7 +23,7 @@ public class WebSocketFacade extends Endpoint {
     public WebSocketFacade(String url, ServerMessageObserver observer) throws Exception{
         try{
             url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "ws");
+            URI socketURI = new URI(url + "/ws");
             this.observer = observer;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
