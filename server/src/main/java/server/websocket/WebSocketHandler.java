@@ -172,7 +172,24 @@ public class WebSocketHandler {
 
 
     private void leaveGame(Session session, String username, UserGameCommand command) throws DataAccessException, IOException{
-        return;
+        int gameID = command.getGameID();
+        GameData ogGame = getValidGameData(session, gameID);
+        if(ogGame == null){return;}
+        GameData updatedGame;
+        NotificationMessage leaveMessage = new NotificationMessage(NOTIFICATION, String.format("%s left the game", username));
+
+        if(ogGame.whiteUsername()!=null && ogGame.whiteUsername().equals(username)){
+            updatedGame = new GameData(ogGame.gameID(), null, ogGame.blackUsername(), ogGame.gameName(), ogGame.game());
+        } else if(ogGame.blackUsername()!=null && ogGame.blackUsername().equals(username)){
+            updatedGame = new GameData(ogGame.gameID(), ogGame.whiteUsername(), null, ogGame.gameName(), ogGame.game());
+        } else{
+            updatedGame = ogGame;
+        }
+
+        System.out.println("about to broadcast leave game message");
+        connections.broadcast(gameID, username, leaveMessage);
+        gameDAO.updateGame(updatedGame);
+        connections.remove(gameID, username);
     }
 
     private void resign(Session session, String username, UserGameCommand command) throws  DataAccessException, IOException{
