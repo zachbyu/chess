@@ -43,7 +43,7 @@ public class ConnectionHandler {
             return;
         }else{
             var gameConnections = connections.get(gameID);
-            System.out.println("in broadcast, going to exclude"+excludeUsername);
+            System.out.println("in broadcast, going to exclude "+excludeUsername);
             for (var user:gameConnections.keySet()){
                 if(!user.equals(excludeUsername)){
                     System.out.println("in broadcast, sending message to " + user);

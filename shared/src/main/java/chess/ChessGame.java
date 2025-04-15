@@ -15,10 +15,12 @@ public class ChessGame {
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
         board.resetBoard();
+        gameOver = false;
 
     }
     private TeamColor teamTurn;
     private ChessBoard board = new ChessBoard();
+    private boolean gameOver;
     /**
      * @return Which team's turn it is
      */
@@ -41,6 +43,14 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public void setGameOver(boolean status){
+        this.gameOver = status;
+    }
+
+    public boolean isGameOver(){
+        return gameOver;
     }
 
     /**
@@ -215,6 +225,7 @@ public class ChessGame {
         }
         return true;
     }
+
 
     /**
      * Sets this game's chessboard with a given board
