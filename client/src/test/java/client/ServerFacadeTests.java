@@ -119,7 +119,7 @@ public class ServerFacadeTests {
 
     @Test
     public void drawGame(){
-        CreateBoard board = new CreateBoard(new ChessBoard(), true);
+        CreateBoard board = new CreateBoard(new ChessBoard(), true, null);
         board.drawBoard();
     }
 

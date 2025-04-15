@@ -1,22 +1,33 @@
 package ui;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import handlers.*;
 import model.GameData;
+import ui.websocket.ServerMessageObserver;
+import ui.websocket.WebSocketFacade;
+import websocket.messages.*;
 
 import java.util.*;
 
-public class ChessClient {
+import static ui.EscapeSequences.*;
+
+public class ChessClient implements ServerMessageObserver {
     private static ServerFacade facade;
+    private WebSocketFacade websocket;
     private static final Scanner SCAN = new Scanner(System.in);
     private static String currAuthToken = null;
     private static ArrayList<GameData> lastGameList;
     private static State state = State.LOGGEDOUT;
     private HashMap<Integer, GameData> gameMap = new HashMap<>();
     private boolean white;
+    private GameData currGame;
+    private final String baseURL;
+    public Gson gson = new Gson();
 
     public ChessClient(int port){
         facade = new ServerFacade(port);
+        baseURL = "http://localhost:" + port;
     }
 
     public void run() {;
@@ -54,6 +65,7 @@ public class ChessClient {
             case "list" -> listGames(params);
             case "observe" -> observeGame(params);
             case "join" -> joinGame(params);
+            case "redraw" -> redraw(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -68,15 +80,27 @@ public class ChessClient {
                     To quit chess: "quit"
                     To open the help menu: "help"
                     """;
+        } else if (state == State.LOGGEDIN) {
+
+            return """
+                    Available Commands:
+                    Create a game: "create <game name>"
+                    List games: "list"
+                    Observe an ongoing game: "observe <game ID>"
+                    Join a game: "join <game ID> <WHITE/BLACK>"
+                    To logout: "logout"
+                    To quit chess: "quit"
+                    open the help menu: "help"
+                    """;
         }
         return """
                 Available Commands:
-                Create a game: "create <game name>"
-                List games: "list"
-                Observe an ongoing game: "observe <game ID>"
-                Join a game: "join <game ID> <WHITE/BLACK>"
-                To logout: "logout"
-                To quit chess: "quit"
+                Redraw the game board: enter "redraw"
+                Make move: Make a move on your turn, enter "move d2d4 -> Queen" the -> Piecetype is only needed for pawn promotion
+                Highlight legal moves: enter "highlight d2"
+                Resign: to resign the game enter "resign"
+                Leave Game: enter "leave"
+                to quit chess: "quit"
                 open the help menu: "help"
                 """;
     }
@@ -177,10 +201,14 @@ public class ChessClient {
                 ListGamesResult listResult = facade.listGames();
 
                 try{
-                    GameData currentGame = gameMap.get(id);
-                    CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), true);
-                    observeBoard.drawBoard();
-                    return ("Now observing the game " + currentGame.gameName());
+                    GameData currGame = gameMap.get(id);
+//                    CreateBoard observeBoard = new CreateBoard(currGame.game().getBoard(), true);
+//                    observeBoard.drawBoard();
+                    websocket = new WebSocketFacade(baseURL, this);
+                    websocket.observeGame(currAuthToken, currGame.gameID());
+                    white = true;
+                    state = State.INGAME;
+                    return ("Now observing the game " + currGame.gameName());
                 }catch(Exception e) {
                     return("not a valid id");
                 }
@@ -207,7 +235,7 @@ public class ChessClient {
                     GameData currentGame = gameMap.get(id);
                     try {
                         facade.joinGame(new JoinGameRequest(white ? "WHITE" : "BLACK", currentGame.gameID()));
-                        CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), white);
+                        CreateBoard observeBoard = new CreateBoard(currentGame.game().getBoard(), white, null);
                         observeBoard.drawBoard();
                         return ("Now joining the game " + currentGame.gameName() + " as " + (white ? "WHITE" : "BLACK"));
                     } catch (Exception e) {
@@ -223,9 +251,67 @@ public class ChessClient {
         return ("expected format: <gameID> <WHITE/BLACK>");
     }
 
+    private String redraw(String[] params) throws Exception{
+        drawCurrentBoard(currGame.gameID(), white, null);
+        return "board redrawn";
+    }
+
+    private void drawCurrentBoard(int id, boolean white, int[][] highlights) throws Exception {
+        try{
+            //GameData currGame = gameMap.get(id);
+            getAndDrawBoard(currGame, white, highlights);
+        }
+        catch(Exception e){
+            throw new Exception("Game ID not found. Type 'list' to get a list of current games");
+        }
+    }
+
+    private static void getAndDrawBoard(GameData game, boolean white, int[][] highlights) {
+        ChessGame currGame = game.game();
+        drawChessGame(white, highlights, currGame);
+    }
+
+    private static void drawChessGame(boolean white, int[][] highlights, ChessGame currGame) {
+        chess.ChessBoard chessClassBoard = currGame.getBoard();
+        CreateBoard uiBoard = new CreateBoard(chessClassBoard, white, highlights);
+        uiBoard.drawBoard();
+    }
+
     private void checkSignedIn() throws Exception{
         if(state == State.LOGGEDOUT){
             throw new Exception("Must be Signed in.");
         }
     }
+
+    @Override
+    public void notify(String message) {
+
+        ServerMessage serverMessage =
+                gson.fromJson(message, ServerMessage.class);
+
+        switch (serverMessage.getServerMessageType()) {
+            case NOTIFICATION -> displayNotification(message);
+            case ERROR -> displayError(message);
+            case LOAD_GAME -> loadGame(message);
+        }
+    }
+    private void displayNotification(String message){
+        NotificationMessage notificationMessage = gson.fromJson(message, NotificationMessage.class);
+        System.out.print(SET_TEXT_COLOR_BLUE);
+        System.out.println(notificationMessage.getMessage());
+    }
+    private void displayError(String message){
+        ErrorMessage errorMessage = gson.fromJson(message, ErrorMessage.class);
+        System.out.print(SET_TEXT_COLOR_RED);
+        System.out.println(errorMessage.getErrorMessage());
+        System.out.print(SET_TEXT_COLOR_GREEN);
+    }
+    private void loadGame(String message){
+        LoadGameMessage loadGameMessage = gson.fromJson(message, LoadGameMessage.class);
+        currGame = new GameData(currGame.gameID(), currGame.whiteUsername(), currGame.blackUsername(), currGame.gameName(), loadGameMessage.getGame());
+        drawChessGame(white, null, loadGameMessage.getGame());
+        System.out.println();
+    }
+
+
 }

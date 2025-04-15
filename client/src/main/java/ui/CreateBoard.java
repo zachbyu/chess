@@ -12,7 +12,7 @@ public class CreateBoard {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private chess.ChessBoard currentBoard;
 
-    public CreateBoard(chess.ChessBoard importedBoard, boolean whitePerspective){
+    public CreateBoard(chess.ChessBoard importedBoard, boolean whitePerspective, int[][] highlights){
         this.currentBoard = importedBoard;
         this.whitePerspective = whitePerspective;
     }
