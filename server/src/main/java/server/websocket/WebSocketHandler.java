@@ -144,8 +144,11 @@ public class WebSocketHandler {
         LoadGameMessage gameMessage = new LoadGameMessage(LOAD_GAME, game, playerType);
         connections.broadcast(gameID, "", gameMessage);
 
+
+
+
         //send notification message to all others saying what move was made
-        String moveMessage = currTurnColor + " player " + username + " moved from " + move.getStartPosition() + " to " + move.getEndPosition();
+        String moveMessage = currTurnColor + " player " + username + " moved to " + getCol(move.getEndPosition()) + move.getEndPosition().getRow() + " from " + getCol(move.getStartPosition()) + move.getStartPosition().getRow();
         NotificationMessage moveNotification = new NotificationMessage(NOTIFICATION, moveMessage);
         connections.broadcast(gameID, username, moveNotification);
 
@@ -241,4 +244,19 @@ public class WebSocketHandler {
             return null;
         }
     }
+
+
+    private String getCol(ChessPosition position){
+        String col = "";
+        if (position.getColumn() == 1){col = "a";}
+        else if (position.getColumn() == 2) {col = "b";}
+        else if (position.getColumn() == 3) {col = "c";}
+        else if (position.getColumn() == 4) {col = "d";}
+        else if (position.getColumn() == 5) {col = "e";}
+        else if (position.getColumn() == 6) {col = "f";}
+        else if (position.getColumn() == 7) {col = "g";}
+        else if (position.getColumn() == 8) {col = "h";}
+        return col;
+    }
+
 }

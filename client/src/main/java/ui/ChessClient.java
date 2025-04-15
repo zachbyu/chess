@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
@@ -314,6 +315,10 @@ public class ChessClient implements ServerMessageObserver {
 
             ChessPosition pos = new ChessPosition(row,col);
             ChessGame chessGame = currGame.game();
+            ChessBoard board = chessGame.getBoard();
+            if (board.getPiece(pos) == null){
+                return "No piece at position";
+            }
 
             Collection<ChessMove> moves = chessGame.validMoves(pos);
             int numMoves = moves.size();
