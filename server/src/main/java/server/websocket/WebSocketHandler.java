@@ -24,7 +24,6 @@ import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 @WebSocket
 public class WebSocketHandler {
-    SQLUserDAO userDAO;
     public SQLAuthDAO authDAO = new SQLAuthDAO();
     public SQLGameDAO gameDAO = new SQLGameDAO();
     private Gson gson = new Gson();
